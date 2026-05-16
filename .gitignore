@@ -1,0 +1,33 @@
+# Shopify CLI
+.shopify/
+.theme-check/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Node (if you add build tooling later)
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Shopify theme editor (local dev store pull)
+config/settings_data.json
+
+# Build output (if you add a bundler)
+dist/
+.output/
+
+# Lock files (uncomment if you want to track them)
+# package-lock.json

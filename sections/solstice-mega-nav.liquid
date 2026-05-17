@@ -1,0 +1,1540 @@
+{% liquid
+  assign sticky = 'never'
+  if section.settings.enable_sticky_header == 'always'
+    assign sticky = 'always'
+  elsif section.settings.enable_sticky_header == 'scroll-up'
+    assign sticky = 'scroll-up'
+  endif
+
+  capture actions
+    render 'header-actions', customer_account_menu: section.settings.customer_account_menu, display_style: section.settings.actions_display_style, section: section
+  endcapture
+
+  capture search
+    if section.settings.show_search
+      render 'search', style: 'modal', display_style: section.settings.actions_display_style
+    endif
+  endcapture
+%}
+
+<mega-nav-header
+  id="mega-nav-header"
+  class="solstice-mega-nav color-{{ section.settings.color_scheme }}"
+  {% if sticky != 'never' %}
+    sticky="{{ sticky }}"
+  {% endif %}
+  data-section-id="{{ section.id }}"
+  style="
+    --mega-nav-bg: var(--color-background);
+    --mega-nav-text: var(--color-foreground);
+    --mega-nav-border: var(--color-border);
+    --mega-nav-shadow: var(--shadow-popover, 0 4px 12px rgba(0,0,0,0.1));
+    --mega-nav-link-hover-bg: rgb(var(--color-foreground-rgb) / 0.05);
+    --mega-nav-active-bg: rgb(var(--color-foreground-rgb) / 0.08);
+    --mega-nav-active-text: var(--color-foreground);
+    --mobile-drawer-bg: var(--color-background);
+    --mobile-drawer-width: min(90vw, 400px);
+    --mobile-drawer-overlay: rgba(0, 0, 0, 0.5);
+  "
+>
+  <div class="mega-nav__top-row">
+    <div class="mega-nav__inner{% if section.settings.section_width == 'page-width' %} mega-nav__inner--page-width{% endif %}">
+      <details class="mega-nav__mobile-menu" data-mobile-menu>
+        <summary
+          class="mega-nav__menu-button"
+          aria-label="{{ 'accessibility.menu' | t }}"
+          aria-controls="mega-nav-mobile-drawer-{{ section.id }}"
+        >
+          <span class="svg-wrapper">
+            {{- 'icon-menu.svg' | inline_asset_content -}}
+          </span>
+        </summary>
+
+        <div class="mega-nav__mobile-drawer-overlay" data-mobile-drawer-close></div>
+        <aside
+          id="mega-nav-mobile-drawer-{{ section.id }}"
+          class="mega-nav__mobile-drawer-panel"
+          aria-label="{{ 'accessibility.header_navigation_label' | t }}"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div class="mega-nav__drawer-header">
+            <button
+              type="button"
+              class="mega-nav__drawer-close"
+              data-mobile-drawer-close
+              aria-label="{{ 'actions.close' | t }}"
+            >
+              <span class="svg-wrapper">
+                {{- 'icon-close.svg' | inline_asset_content -}}
+              </span>
+            </button>
+          </div>
+
+          {%- if section.blocks.size > 0 -%}
+            <nav class="mega-nav__mobile-panels" aria-label="{{ 'accessibility.header_navigation_label' | t }}">
+              <div
+                id="mega-nav-mobile-root-{{ section.id }}"
+                class="mega-nav__mobile-panel"
+                data-mobile-panel
+                data-active
+              >
+                <ul class="mega-nav__drawer-list">
+                  {%- for block in section.blocks -%}
+                    {%- assign block_menu = linklists[block.settings.menu] -%}
+                    {%- assign block_label = block.settings.label | strip -%}
+                    {%- assign block_url = block.settings.url -%}
+                    {%- assign has_children = false -%}
+
+                    {%- if block_label == blank -%}
+                      {%- continue -%}
+                    {%- endif -%}
+
+                    {%- if block_menu != blank and block_menu.links.size > 0 -%}
+                      {%- assign has_children = true -%}
+                    {%- endif -%}
+
+                    {%- unless has_children or block_url != blank -%}
+                      {%- continue -%}
+                    {%- endunless -%}
+
+                    <li class="mega-nav__drawer-item">
+                      {%- if has_children -%}
+                        <button
+                          type="button"
+                          class="mega-nav__drawer-link mega-nav__drawer-link--trigger"
+                          aria-controls="mega-nav-mobile-{{ block.id }}"
+                          data-mobile-nav-forward
+                        >
+                          <span>{{ block_label | escape }}</span>
+                          <span class="mega-nav__mobile-chevron" aria-hidden="true">›</span>
+                        </button>
+                      {%- else -%}
+                        <a
+                          href="{{ block_url }}"
+                          class="mega-nav__drawer-link mega-nav__drawer-link--direct"
+                        >
+                          {{ block_label | escape }}
+                        </a>
+                      {%- endif -%}
+                    </li>
+                  {%- endfor -%}
+                </ul>
+              </div>
+
+                {%- for block in section.blocks -%}
+                  {%- assign block_menu = linklists[block.settings.menu] -%}
+                  {%- assign block_label = block.settings.label | strip -%}
+                  {%- assign block_url = block.settings.url -%}
+                  {%- assign has_children = false -%}
+
+                  {%- if block_label == blank -%}
+                    {%- continue -%}
+                  {%- endif -%}
+
+                  {%- if block_menu != blank and block_menu.links.size > 0 -%}
+                    {%- assign has_children = true -%}
+                  {%- endif -%}
+
+                  {%- unless has_children or block_url != blank -%}
+                    {%- continue -%}
+                  {%- endunless -%}
+
+                  {%- if has_children -%}
+                    <div
+                      id="mega-nav-mobile-{{ block.id }}"
+                      class="mega-nav__mobile-panel"
+                      data-mobile-panel
+                    >
+                      <div class="mega-nav__mobile-panel-header">
+                        <button
+                          type="button"
+                          class="mega-nav__mobile-back"
+                          aria-controls="mega-nav-mobile-root-{{ section.id }}"
+                          data-mobile-nav-back
+                        >
+                          <span aria-hidden="true">‹</span>
+                          <span>{{ 'actions.back' | t }}</span>
+                        </button>
+                        <div class="mega-nav__mobile-panel-title">{{ block_label | escape }}</div>
+                      </div>
+
+                      <ul class="mega-nav__drawer-list">
+                        {%- if block_url != blank -%}
+                          <li class="mega-nav__drawer-subitem">
+                            <a href="{{ block_url }}" class="mega-nav__drawer-sublink mega-nav__drawer-sublink--view-all">
+                              {{ 'actions.view_all' | t }} {{ block_label | escape }}
+                            </a>
+                          </li>
+                        {%- endif -%}
+                        {%- for childlink in block_menu.links -%}
+                          <li class="mega-nav__drawer-subitem">
+                            {%- if childlink.links != blank -%}
+                              <button
+                                type="button"
+                                class="mega-nav__drawer-sublink mega-nav__drawer-sublink--trigger"
+                                aria-controls="mega-nav-mobile-{{ block.id }}-{{ forloop.index }}"
+                                data-mobile-nav-forward
+                              >
+                                <span>{{ childlink.title | escape }}</span>
+                                <span class="mega-nav__mobile-chevron" aria-hidden="true">›</span>
+                              </button>
+                            {%- else -%}
+                              <a
+                                href="{{ childlink.url }}"
+                                class="mega-nav__drawer-sublink"
+                                {% if childlink.current %}aria-current="page"{% endif %}
+                              >
+                                {{ childlink.title | escape }}
+                              </a>
+                            {%- endif -%}
+                          </li>
+                        {%- endfor -%}
+                      </ul>
+                    </div>
+
+                    {%- for childlink in block_menu.links -%}
+                      {%- if childlink.links != blank -%}
+                        <div
+                          id="mega-nav-mobile-{{ block.id }}-{{ forloop.index }}"
+                          class="mega-nav__mobile-panel"
+                          data-mobile-panel
+                        >
+                          <div class="mega-nav__mobile-panel-header">
+                            <button
+                              type="button"
+                              class="mega-nav__mobile-back"
+                              aria-controls="mega-nav-mobile-{{ block.id }}"
+                              data-mobile-nav-back
+                            >
+                              <span aria-hidden="true">‹</span>
+                              <span>{{ 'actions.back' | t }}</span>
+                            </button>
+                            <div class="mega-nav__mobile-panel-title">{{ childlink.title | escape }}</div>
+                          </div>
+
+                          <ul class="mega-nav__drawer-list">
+                            <li class="mega-nav__drawer-subitem">
+                              <a href="{{ childlink.url }}" class="mega-nav__drawer-sublink mega-nav__drawer-sublink--view-all">
+                                {{ 'actions.view_all' | t }} {{ childlink.title | escape }}
+                              </a>
+                            </li>
+                            {%- for grandchildlink in childlink.links -%}
+                              <li class="mega-nav__drawer-subitem">
+                                {%- if grandchildlink.links != blank -%}
+                                  <button
+                                    type="button"
+                                    class="mega-nav__drawer-sublink mega-nav__drawer-sublink--trigger"
+                                    aria-controls="mega-nav-mobile-{{ block.id }}-{{ forloop.parentloop.index }}-{{ forloop.index }}"
+                                    data-mobile-nav-forward
+                                  >
+                                    <span>{{ grandchildlink.title | escape }}</span>
+                                    <span class="mega-nav__mobile-chevron" aria-hidden="true">›</span>
+                                  </button>
+                                {%- else -%}
+                                  <a
+                                    href="{{ grandchildlink.url }}"
+                                    class="mega-nav__drawer-sublink"
+                                    {% if grandchildlink.current %}aria-current="page"{% endif %}
+                                  >
+                                    {{ grandchildlink.title | escape }}
+                                  </a>
+                                {%- endif -%}
+                              </li>
+                            {%- endfor -%}
+                          </ul>
+                        </div>
+
+                        {%- for grandchildlink in childlink.links -%}
+                          {%- if grandchildlink.links != blank -%}
+                            <div
+                              id="mega-nav-mobile-{{ block.id }}-{{ forloop.parentloop.index }}-{{ forloop.index }}"
+                              class="mega-nav__mobile-panel"
+                              data-mobile-panel
+                            >
+                              <div class="mega-nav__mobile-panel-header">
+                                <button
+                                  type="button"
+                                  class="mega-nav__mobile-back"
+                                  aria-controls="mega-nav-mobile-{{ block.id }}-{{ forloop.parentloop.index }}"
+                                  data-mobile-nav-back
+                                >
+                                  <span aria-hidden="true">‹</span>
+                                  <span>{{ 'actions.back' | t }}</span>
+                                </button>
+                                <div class="mega-nav__mobile-panel-title">{{ grandchildlink.title | escape }}</div>
+                              </div>
+
+                              <ul class="mega-nav__drawer-list">
+                                <li class="mega-nav__drawer-subitem">
+                                  <a href="{{ grandchildlink.url }}" class="mega-nav__drawer-sublink mega-nav__drawer-sublink--view-all">
+                                    {{ 'actions.view_all' | t }} {{ grandchildlink.title | escape }}
+                                  </a>
+                                </li>
+                                {%- for greatgrandchildlink in grandchildlink.links -%}
+                                  <li class="mega-nav__drawer-subitem">
+                                    <a
+                                      href="{{ greatgrandchildlink.url }}"
+                                      class="mega-nav__drawer-sublink"
+                                      {% if greatgrandchildlink.current %}aria-current="page"{% endif %}
+                                    >
+                                      {{ greatgrandchildlink.title | escape }}
+                                    </a>
+                                  </li>
+                                {%- endfor -%}
+                              </ul>
+                            </div>
+                          {%- endif -%}
+                        {%- endfor -%}
+                      {%- endif -%}
+                    {%- endfor -%}
+                  {%- endif -%}
+                {%- endfor -%}
+            </nav>
+          {%- endif -%}
+        </aside>
+      </details>
+
+      <div class="mega-nav__logo">
+        {%- if settings.logo -%}
+          <a href="{{ routes.root_url }}">
+            {% assign logo_width = section.settings.logo_max_width | default: 200 %}
+            {{ settings.logo | image_url: width: logo_width | image_tag: alt: shop.name, class: 'mega-nav__logo-img' }}
+          </a>
+        {%- else -%}
+          <a href="{{ routes.root_url }}">
+            <span class="h3 mega-nav__logo-text">{{ shop.name }}</span>
+          </a>
+        {%- endif -%}
+      </div>
+
+      <div class="mega-nav__actions">
+        {{ search }}
+        {{ actions }}
+      </div>
+    </div>
+  </div>
+
+  {%- if section.blocks.size > 0 -%}
+    <div class="mega-nav__nav-row color-{{ section.settings.color_scheme_nav }}" data-nav-row>
+      <div class="mega-nav__inner{% if section.settings.section_width == 'page-width' %} mega-nav__inner--page-width{% endif %}">
+        <nav class="mega-nav__nav" aria-label="{{ 'accessibility.header_navigation_label' | t }}">
+          <ul class="mega-nav__nav-list">
+            {%- for block in section.blocks -%}
+              {%- assign block_menu = linklists[block.settings.menu] -%}
+              {%- assign block_label = block.settings.label | strip -%}
+              {%- assign block_url = block.settings.url -%}
+              {%- assign has_children = false -%}
+
+              {%- if block_label == blank -%}
+                {%- continue -%}
+              {%- endif -%}
+
+              {%- if block_menu != blank and block_menu.links.size > 0 -%}
+                {%- assign has_children = true -%}
+              {%- endif -%}
+
+              {%- unless has_children or block_url != blank -%}
+                {%- continue -%}
+              {%- endunless -%}
+
+              <li class="mega-nav__nav-item" {{ block.shopify_attributes }}>
+                {%- if has_children -%}
+                  <button
+                    type="button"
+                    class="mega-nav__nav-link mega-nav__nav-link--trigger"
+                    aria-expanded="false"
+                    aria-controls="mega-panel-{{ block.id }}"
+                    data-mega-trigger
+                  >
+                    {{ block_label | escape }}
+                    <span class="svg-wrapper mega-nav__nav-caret">
+                      {{- 'icon-caret.svg' | inline_asset_content -}}
+                    </span>
+                  </button>
+                {%- else -%}
+                  <a
+                    href="{{ block_url }}"
+                    class="mega-nav__nav-link mega-nav__nav-link--direct"
+                  >
+                    {{ block_label | escape }}
+                  </a>
+                {%- endif -%}
+              </li>
+            {%- endfor -%}
+          </ul>
+        </nav>
+      </div>
+    </div>
+  {%- endif -%}
+
+  {%- if section.blocks.size > 0 -%}
+    <div class="mega-nav__panels" data-mega-panels hidden>
+      {%- for block in section.blocks -%}
+        {%- assign block_menu = linklists[block.settings.menu] -%}
+        {%- assign block_label = block.settings.label | strip -%}
+        {%- assign block_url = block.settings.url -%}
+
+        {%- if block_label == blank -%}
+          {%- continue -%}
+        {%- endif -%}
+
+        {%- if block_menu == blank or block_menu.links.size == 0 -%}
+          {%- continue -%}
+        {%- endif -%}
+
+        <div
+          id="mega-panel-{{ block.id }}"
+          class="mega-nav__panel"
+          data-mega-panel
+        >
+          <div class="mega-nav__panel-list" data-panel-list>
+            <div class="mega-nav__panel-list-l2">
+              {%- if block_url != blank -%}
+                <div class="mega-nav__panel-list-view-all">
+                  <a href="{{ block_url }}" class="mega-nav__panel-list-link mega-nav__panel-list-link--view-all">
+                    {{ 'actions.view_all' | t }} {{ block_label | escape }}
+                  </a>
+                </div>
+              {%- endif -%}
+              {%- for childlink in block_menu.links limit: section.settings.max_l2_groups -%}
+                <div class="mega-nav__panel-list-item">
+                  {%- if childlink.links != blank -%}
+                    <button
+                      type="button"
+                      class="mega-nav__panel-list-link mega-nav__panel-list-link--trigger"
+                      aria-expanded="false"
+                      aria-controls="l3-{{ block.id }}-{{ forloop.index }}"
+                      data-l2-trigger
+                    >
+                      <span>{{ childlink.title | escape }}</span>
+                      <span class="mega-nav__panel-list-caret" aria-hidden="true">›</span>
+                    </button>
+                  {%- else -%}
+                    <a
+                      href="{{ childlink.url }}"
+                      class="mega-nav__panel-list-link mega-nav__panel-list-link--l2"
+                    >
+                      {{ childlink.title | escape }}
+                    </a>
+                  {%- endif -%}
+                </div>
+              {%- endfor -%}
+            </div>
+            <div class="mega-nav__panel-list-l3" data-panel-l3-area>
+              {%- for childlink in block_menu.links limit: section.settings.max_l2_groups -%}
+                {%- if childlink.links != blank -%}
+                  <div
+                    id="l3-{{ block.id }}-{{ forloop.index }}"
+                    class="mega-nav__panel-l3-group"
+                    data-l3-group
+                  >
+                    <div class="mega-nav__panel-l3-heading">{{ childlink.title | escape }}</div>
+                    {%- for grandchildlink in childlink.links limit: section.settings.max_l3_links -%}
+                      {%- if grandchildlink.links != blank -%}
+                        <button
+                          type="button"
+                          class="mega-nav__panel-list-link mega-nav__panel-list-link--trigger mega-nav__panel-list-link--l3-trigger"
+                          aria-expanded="false"
+                          aria-controls="l4-{{ block.id }}-{{ forloop.parentloop.index }}-{{ forloop.index }}"
+                          data-l3-trigger
+                        >
+                          <span>{{ grandchildlink.title | escape }}</span>
+                          <span class="mega-nav__panel-list-caret" aria-hidden="true">›</span>
+                        </button>
+                      {%- else -%}
+                        <a
+                          href="{{ grandchildlink.url }}"
+                          class="mega-nav__panel-l3-link"
+                          {% if grandchildlink.current %}aria-current="page"{% endif %}
+                        >
+                          {{ grandchildlink.title | escape }}
+                        </a>
+                      {%- endif -%}
+                    {%- endfor -%}
+                  </div>
+                {%- endif -%}
+              {%- endfor -%}
+            </div>
+            <div class="mega-nav__panel-list-l4" data-panel-l4-area>
+              {%- for childlink in block_menu.links limit: section.settings.max_l2_groups -%}
+                {%- if childlink.links != blank -%}
+                  {%- for grandchildlink in childlink.links limit: section.settings.max_l3_links -%}
+                    {%- if grandchildlink.links != blank -%}
+                      <div
+                        id="l4-{{ block.id }}-{{ forloop.parentloop.index }}-{{ forloop.index }}"
+                        class="mega-nav__panel-l4-group"
+                        data-l4-group
+                      >
+                        <div class="mega-nav__panel-l4-heading">{{ grandchildlink.title | escape }}</div>
+                        {%- for greatgrandchildlink in grandchildlink.links limit: section.settings.max_l3_links -%}
+                          <a
+                            href="{{ greatgrandchildlink.url }}"
+                            class="mega-nav__panel-l4-link"
+                            {% if greatgrandchildlink.current %}aria-current="page"{% endif %}
+                          >
+                            {{ greatgrandchildlink.title | escape }}
+                          </a>
+                        {%- endfor -%}
+                      </div>
+                    {%- endif -%}
+                  {%- endfor -%}
+                {%- endif -%}
+              {%- endfor -%}
+            </div>
+          </div>
+        </div>
+      {%- endfor -%}
+    </div>
+  {%- endif -%}
+
+  <aside
+    id="mega-nav-drawer-{{ section.id }}"
+    class="mega-nav__drawer"
+    data-drawer
+    aria-label="{{ 'accessibility.header_navigation_label' | t }}"
+    aria-hidden="true"
+    role="dialog"
+    aria-modal="true"
+  >
+    <div class="mega-nav__drawer-overlay" data-drawer-close></div>
+    <div class="mega-nav__drawer-panel">
+      <div class="mega-nav__drawer-header">
+        <button
+          type="button"
+          class="mega-nav__drawer-close"
+          data-drawer-close
+          aria-label="{{ 'actions.close' | t }}"
+        >
+          <span class="svg-wrapper">
+            {{- 'icon-close.svg' | inline_asset_content -}}
+          </span>
+        </button>
+      </div>
+      {%- if section.blocks.size > 0 -%}
+        <nav class="mega-nav__drawer-nav">
+          <ul class="mega-nav__drawer-list">
+            {%- for block in section.blocks -%}
+              {%- assign block_menu = linklists[block.settings.menu] -%}
+              {%- assign block_label = block.settings.label | strip -%}
+              {%- assign block_url = block.settings.url -%}
+              {%- assign has_children = false -%}
+
+              {%- if block_label == blank -%}
+                {%- continue -%}
+              {%- endif -%}
+
+              {%- if block_menu != blank and block_menu.links.size > 0 -%}
+                {%- assign has_children = true -%}
+              {%- endif -%}
+
+              {%- unless has_children or block_url != blank -%}
+                {%- continue -%}
+              {%- endunless -%}
+
+              <li class="mega-nav__drawer-item">
+                {%- if has_children -%}
+                  <button
+                    type="button"
+                    class="mega-nav__drawer-link mega-nav__drawer-link--trigger"
+                    aria-expanded="false"
+                    aria-controls="drawer-sub-{{ block.id }}"
+                    data-accordion-trigger
+                  >
+                    <span>{{ block_label | escape }}</span>
+                    <span class="svg-wrapper mega-nav__drawer-icon">
+                      {{- 'icon-plus.svg' | inline_asset_content -}}
+                    </span>
+                  </button>
+                  <div
+                    id="drawer-sub-{{ block.id }}"
+                    class="mega-nav__drawer-sub"
+                    hidden
+                    data-accordion-panel
+                  >
+                    <ul class="mega-nav__drawer-sublist">
+                      {%- if block_url != blank -%}
+                        <li class="mega-nav__drawer-subitem">
+                          <a href="{{ block_url }}" class="mega-nav__drawer-sublink mega-nav__drawer-sublink--view-all">
+                            {{ 'actions.view_all' | t }} {{ block_label | escape }}
+                          </a>
+                        </li>
+                      {%- endif -%}
+                      {%- for childlink in block_menu.links -%}
+                        <li class="mega-nav__drawer-subitem">
+                          {%- if childlink.links != blank -%}
+                            <button
+                              type="button"
+                              class="mega-nav__drawer-sublink mega-nav__drawer-sublink--trigger"
+                              aria-expanded="false"
+                              aria-controls="drawer-sub-{{ block.id }}-{{ forloop.index }}"
+                              data-accordion-trigger
+                            >
+                              <span>{{ childlink.title | escape }}</span>
+                              <span class="svg-wrapper mega-nav__drawer-icon mega-nav__drawer-icon--sm">
+                                {{- 'icon-plus.svg' | inline_asset_content -}}
+                              </span>
+                            </button>
+                            <div
+                              id="drawer-sub-{{ block.id }}-{{ forloop.index }}"
+                              class="mega-nav__drawer-sub"
+                              hidden
+                              data-accordion-panel
+                            >
+                              <ul class="mega-nav__drawer-sublist mega-nav__drawer-sublist--nested">
+                                {%- for grandchildlink in childlink.links -%}
+                                  <li>
+                                    {%- if grandchildlink.links != blank -%}
+                                      <button
+                                        type="button"
+                                        class="mega-nav__drawer-sublink mega-nav__drawer-sublink--trigger"
+                                        aria-expanded="false"
+                                        aria-controls="drawer-sub-{{ block.id }}-{{ forloop.parentloop.index }}-{{ forloop.index }}"
+                                        data-accordion-trigger
+                                      >
+                                        <span>{{ grandchildlink.title | escape }}</span>
+                                        <span class="svg-wrapper mega-nav__drawer-icon mega-nav__drawer-icon--sm">
+                                          {{- 'icon-plus.svg' | inline_asset_content -}}
+                                        </span>
+                                      </button>
+                                      <div
+                                        id="drawer-sub-{{ block.id }}-{{ forloop.parentloop.index }}-{{ forloop.index }}"
+                                        class="mega-nav__drawer-sub"
+                                        hidden
+                                        data-accordion-panel
+                                      >
+                                        <ul class="mega-nav__drawer-sublist mega-nav__drawer-sublist--nested mega-nav__drawer-sublist--deep">
+                                          {%- for greatgrandchildlink in grandchildlink.links -%}
+                                            <li>
+                                              <a
+                                                href="{{ greatgrandchildlink.url }}"
+                                                class="mega-nav__drawer-sublink"
+                                                {% if greatgrandchildlink.current %}aria-current="page"{% endif %}
+                                              >
+                                                {{ greatgrandchildlink.title | escape }}
+                                              </a>
+                                            </li>
+                                          {%- endfor -%}
+                                        </ul>
+                                      </div>
+                                    {%- else -%}
+                                      <a
+                                        href="{{ grandchildlink.url }}"
+                                        class="mega-nav__drawer-sublink"
+                                        {% if grandchildlink.current %}aria-current="page"{% endif %}
+                                      >
+                                        {{ grandchildlink.title | escape }}
+                                      </a>
+                                    {%- endif -%}
+                                  </li>
+                                {%- endfor -%}
+                              </ul>
+                            </div>
+                          {%- else -%}
+                            <a
+                              href="{{ childlink.url }}"
+                              class="mega-nav__drawer-sublink"
+                              {% if childlink.current %}aria-current="page"{% endif %}
+                            >
+                              {{ childlink.title | escape }}
+                            </a>
+                          {%- endif -%}
+                        </li>
+                      {%- endfor -%}
+                    </ul>
+                  </div>
+                {%- else -%}
+                  <a
+                    href="{{ block_url }}"
+                    class="mega-nav__drawer-link mega-nav__drawer-link--direct"
+                  >
+                    {{ block_label | escape }}
+                  </a>
+                {%- endif -%}
+              </li>
+            {%- endfor -%}
+          </ul>
+        </nav>
+      {%- endif -%}
+    </div>
+  </aside>
+</mega-nav-header>
+
+<script src="{{ 'solstice-mega-nav.js' | asset_url }}" type="module"></script>
+
+{% stylesheet %}
+  .solstice-mega-nav {
+    --mega-nav-z-panels: 49;
+    --mega-nav-z-drawer: 101;
+    --mega-nav-panel-max-height: 70vh;
+
+    display: block;
+    position: relative;
+    background: var(--mega-nav-bg);
+    color: var(--mega-nav-text);
+  }
+
+  .solstice-mega-nav[sticky] {
+    position: sticky;
+    top: -1px;
+    z-index: var(--layer-sticky, 50);
+  }
+
+  .mega-nav__top-row {
+    position: relative;
+    z-index: 2;
+  }
+
+  .mega-nav__nav-row {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--mega-nav-border);
+  }
+
+  .mega-nav__inner {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-lg);
+    padding-block: var(--padding-xs);
+    padding-inline: var(--padding-lg);
+    min-height: var(--mega-nav-min-height, 56px);
+  }
+
+  .mega-nav__inner--page-width {
+    max-width: var(--page-width, 1440px);
+    margin-inline: auto;
+  }
+
+  .mega-nav__nav-row .mega-nav__inner {
+    min-height: var(--mega-nav-nav-min-height, 40px);
+    padding-block: 0;
+  }
+
+  .mega-nav__menu-button {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: inherit;
+    padding: var(--padding-sm);
+    margin-inline-start: calc(-1 * var(--padding-sm));
+    cursor: pointer;
+  }
+
+  .mega-nav__mobile-menu {
+    display: none;
+  }
+
+  .mega-nav__mobile-menu > summary {
+    list-style: none;
+  }
+
+  .mega-nav__mobile-menu > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .mega-nav__menu-button .svg-wrapper {
+    width: var(--icon-size-md, 24px);
+    height: var(--icon-size-md, 24px);
+  }
+
+  .mega-nav__logo {
+    flex-shrink: 0;
+  }
+
+  .mega-nav__logo-img {
+    display: block;
+    max-width: 200px;
+    height: auto;
+  }
+
+  .mega-nav__logo-text {
+    font-family: var(--font-heading--family);
+    font-size: var(--font-size--h4, 1.375rem);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .mega-nav__logo a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .mega-nav__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-xs);
+    flex-shrink: 0;
+    margin-inline-start: auto;
+  }
+
+  .mega-nav__actions header-actions {
+    display: flex;
+    align-items: center;
+  }
+
+  .mega-nav__nav-list {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-xl);
+    flex-wrap: wrap;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .mega-nav__nav-link {
+    font-family: var(--font-body--family);
+    font-size: var(--font-size--sm, 0.875rem);
+    font-weight: var(--font-body--weight, 400);
+    color: inherit;
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--gap-3xs);
+    padding: var(--padding-sm) var(--padding-xs);
+    position: relative;
+    white-space: nowrap;
+    border-radius: 4px;
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+
+  .mega-nav__nav-link:hover {
+    background: var(--mega-nav-link-hover-bg);
+  }
+
+  .mega-nav__nav-link--trigger[aria-expanded='true'] {
+    background: var(--mega-nav-active-bg);
+    color: var(--mega-nav-active-text);
+  }
+
+  .mega-nav__nav-link:focus-visible,
+  .mega-nav__panel-list-link:focus-visible,
+  .mega-nav__panel-l3-link:focus-visible,
+  .mega-nav__drawer-link:focus-visible,
+  .mega-nav__drawer-sublink:focus-visible,
+  .mega-nav__drawer-close:focus-visible,
+  .mega-nav__menu-button:focus-visible {
+    outline: 2px solid var(--color-foreground);
+    outline-offset: 2px;
+  }
+
+  .mega-nav__nav-link--trigger .mega-nav__nav-caret {
+    width: var(--icon-size-xs, 12px);
+    height: var(--icon-size-xs, 12px);
+    display: flex;
+    transition: transform 0.2s ease;
+  }
+
+  .mega-nav__nav-link--trigger[aria-expanded='true'] .mega-nav__nav-caret {
+    transform: rotate(180deg);
+  }
+
+  @media screen and (max-width: 749px) {
+    .mega-nav__mobile-menu {
+      display: block;
+    }
+
+    .mega-nav__menu-button {
+      display: flex;
+    }
+
+    .mega-nav__nav-row {
+      display: none;
+    }
+
+    .mega-nav__panels {
+      display: none !important;
+    }
+
+    .mega-nav__logo {
+      flex: 1;
+      text-align: center;
+    }
+  }
+
+  .mega-nav__panels {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: var(--mega-nav-z-panels);
+  }
+
+  .mega-nav__panel {
+    background: var(--mega-nav-bg);
+    box-shadow: var(--mega-nav-shadow);
+    border-top: 1px solid var(--mega-nav-border);
+    border-radius: 0 0 8px 8px;
+    width: max-content;
+    max-width: calc(var(--page-width, 1440px) * 0.75);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-4px);
+    transition: opacity 0.15s ease, visibility 0.15s ease, transform 0.15s ease;
+  }
+
+  .mega-nav__panel[data-active] {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .mega-nav__panel-list {
+    display: flex;
+    flex-direction: row;
+    max-height: var(--mega-nav-panel-max-height);
+  }
+
+  .mega-nav__panel-list-l2 {
+    flex: 1 1 300px;
+    min-width: 260px;
+    max-width: 380px;
+    overflow-y: auto;
+    padding: var(--padding-xs) 0;
+  }
+
+  .mega-nav__panel-list-view-all {
+    padding: var(--padding-xs) var(--padding-lg);
+    border-bottom: 1px solid var(--mega-nav-border);
+    margin-bottom: var(--padding-xs);
+  }
+
+  .mega-nav__panel-list-item {
+    position: relative;
+  }
+
+  .mega-nav__panel-list-link {
+    display: block;
+    padding: var(--padding-xs) var(--padding-lg);
+    font-size: var(--font-size--sm, 0.875rem);
+    color: rgb(var(--color-foreground-rgb) / 0.75);
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+
+  .mega-nav__panel-list-link:hover {
+    color: inherit;
+    background: var(--mega-nav-link-hover-bg);
+  }
+
+  .mega-nav__panel-list-link--view-all,
+  .mega-nav__panel-list-link--l2 {
+    font-weight: var(--font-body--weight-bold, 600);
+    color: inherit;
+  }
+
+  .mega-nav__panel-list-link--trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--gap-sm);
+  }
+
+  .mega-nav__panel-list-link--trigger[aria-expanded='true'] {
+    background: var(--mega-nav-active-bg);
+    color: var(--mega-nav-active-text);
+  }
+
+  .mega-nav__panel-list-caret {
+    font-size: 1.2em;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: transform 0.15s ease;
+  }
+
+  .mega-nav__panel-list-link--trigger[aria-expanded='true'] .mega-nav__panel-list-caret {
+    transform: rotate(180deg);
+  }
+
+  .mega-nav__panel-list-l3 {
+    display: none;
+    flex: 1 1 280px;
+    min-width: 240px;
+    max-width: 360px;
+    border-left: 1px solid var(--mega-nav-border);
+    overflow-y: auto;
+    padding: var(--padding-xs) 0;
+    background: var(--mega-nav-link-hover-bg);
+  }
+
+  .mega-nav__panel-list-l3[data-active] {
+    display: block;
+  }
+
+  .mega-nav__panel-list-l4 {
+    display: none;
+    flex: 1 1 280px;
+    min-width: 240px;
+    max-width: 380px;
+    border-left: 1px solid var(--mega-nav-border);
+    overflow-y: auto;
+    padding: var(--padding-xs) 0;
+    background: var(--mega-nav-bg);
+  }
+
+  .mega-nav__panel-list-l4[data-active] {
+    display: block;
+  }
+
+  .mega-nav__panel-l3-group {
+    display: none;
+  }
+
+  .mega-nav__panel-l3-group[data-active] {
+    display: block;
+  }
+
+  .mega-nav__panel-l3-heading {
+    padding: var(--padding-sm) var(--padding-lg) var(--padding-xs);
+    font-family: var(--font-heading--family);
+    font-size: var(--font-size--sm, 0.875rem);
+    font-weight: var(--font-heading--weight, 700);
+    color: var(--mega-nav-active-text);
+    border-bottom: 1px solid var(--mega-nav-border);
+    margin-bottom: var(--padding-xs);
+  }
+
+  .mega-nav__panel-l3-link {
+    display: block;
+    padding: var(--padding-xs) var(--padding-lg);
+    font-size: var(--font-size--sm, 0.875rem);
+    color: rgb(var(--color-foreground-rgb) / 0.75);
+    text-decoration: none;
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+
+  .mega-nav__panel-l3-link:hover {
+    color: inherit;
+    background: var(--mega-nav-link-hover-bg);
+  }
+
+  .mega-nav__panel-l4-group {
+    display: none;
+  }
+
+  .mega-nav__panel-l4-group[data-active] {
+    display: block;
+  }
+
+  .mega-nav__panel-l4-heading {
+    padding: var(--padding-sm) var(--padding-lg) var(--padding-xs);
+    font-size: var(--font-size--sm, 0.875rem);
+    font-weight: var(--font-body--weight-bold, 600);
+    color: var(--mega-nav-active-text);
+    border-bottom: 1px solid var(--mega-nav-border);
+    margin-bottom: var(--padding-xs);
+  }
+
+  .mega-nav__panel-l4-link {
+    display: block;
+    padding: var(--padding-xs) var(--padding-lg);
+    font-size: var(--font-size--sm, 0.875rem);
+    color: rgb(var(--color-foreground-rgb) / 0.75);
+    text-decoration: none;
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+
+  .mega-nav__panel-l4-link:hover {
+    color: inherit;
+    background: var(--mega-nav-link-hover-bg);
+  }
+
+  .mega-nav__drawer {
+    position: fixed;
+    inset: 0;
+    z-index: var(--mega-nav-z-drawer);
+    visibility: hidden;
+    pointer-events: none;
+    transition: visibility 0s linear 0.24s;
+  }
+
+  .mega-nav__mobile-drawer-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: calc(var(--mega-nav-z-drawer) - 1);
+    background: var(--mobile-drawer-overlay);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.24s ease, visibility 0s linear 0.24s;
+    visibility: hidden;
+  }
+
+  .mega-nav__mobile-drawer-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: var(--mega-nav-z-drawer);
+    width: var(--mobile-drawer-width);
+    max-width: 100vw;
+    background: var(--mobile-drawer-bg);
+    box-shadow: var(--mega-nav-shadow);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition: transform 0.24s ease, visibility 0s linear 0.24s;
+  }
+
+  .mega-nav__mobile-panels {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .mega-nav__mobile-panel {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--mobile-drawer-bg);
+    overflow-y: auto;
+    transform: translateX(100%);
+    visibility: hidden;
+    transition: transform 0.24s ease, visibility 0s linear 0.24s;
+  }
+
+  .mega-nav__mobile-panel[data-active] {
+    transform: translateX(0);
+    transition-delay: 0s;
+    visibility: visible;
+  }
+
+  .mega-nav__mobile-panel-header {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: var(--gap-sm);
+    padding: var(--padding-sm) var(--padding-md);
+    border-bottom: 1px solid var(--mega-nav-border);
+    min-height: 56px;
+  }
+
+  .mega-nav__mobile-back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--gap-3xs);
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+    padding: var(--padding-xs);
+  }
+
+  .mega-nav__mobile-back [aria-hidden='true'] {
+    font-size: 1.35em;
+    line-height: 1;
+  }
+
+  .mega-nav__mobile-panel-title {
+    font-family: var(--font-heading--family);
+    font-size: var(--font-size--base, 1rem);
+    font-weight: var(--font-heading--weight, 700);
+    overflow-wrap: break-word;
+    text-align: right;
+  }
+
+  .mega-nav__mobile-chevron {
+    font-size: 1.35em;
+    line-height: 1;
+    margin-inline-start: auto;
+  }
+
+  .mega-nav__mobile-menu[open] .mega-nav__mobile-drawer-overlay {
+    opacity: 1;
+    pointer-events: auto;
+    transition-delay: 0s;
+    visibility: visible;
+  }
+
+  .mega-nav__mobile-menu[open] .mega-nav__mobile-drawer-panel {
+    transform: translateX(0);
+    transition-delay: 0s;
+    visibility: visible;
+  }
+
+  .mega-nav__drawer-overlay {
+    position: absolute;
+    inset: 0;
+    background: var(--mobile-drawer-overlay);
+    opacity: 0;
+    transition: opacity 0.24s ease;
+    z-index: 0;
+  }
+
+  .mega-nav__drawer-panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: var(--mobile-drawer-width);
+    max-width: 100vw;
+    background: var(--mobile-drawer-bg);
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--mega-nav-shadow);
+    overflow-y: auto;
+    visibility: hidden;
+    transform: translateX(-100%);
+    transition: transform 0.24s ease, visibility 0s linear 0.24s;
+  }
+
+  .mega-nav__drawer[open] {
+    visibility: visible;
+    pointer-events: auto;
+    transition-delay: 0s;
+  }
+
+  .mega-nav__drawer[open] .mega-nav__drawer-overlay {
+    opacity: 1;
+  }
+
+  .mega-nav__drawer[open] .mega-nav__drawer-panel {
+    visibility: visible;
+    transform: translateX(0);
+    transition-delay: 0s;
+  }
+
+  .mega-nav__drawer-header {
+    display: flex;
+    justify-content: flex-end;
+    padding: var(--padding-sm);
+    border-bottom: 1px solid var(--mega-nav-border);
+  }
+
+  .mega-nav__drawer-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: inherit;
+    padding: var(--padding-sm);
+    cursor: pointer;
+  }
+
+  .mega-nav__drawer-close .svg-wrapper {
+    width: var(--icon-size-sm, 20px);
+    height: var(--icon-size-sm, 20px);
+  }
+
+  .mega-nav__drawer-nav {
+    padding: var(--padding-sm) 0;
+  }
+
+  .mega-nav__drawer-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .mega-nav__drawer-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: var(--padding-md) var(--padding-lg);
+    font-family: var(--font-body--family);
+    font-size: var(--font-size--base, 1rem);
+    color: inherit;
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .mega-nav__drawer-link:hover {
+    background: var(--mega-nav-link-hover-bg);
+  }
+
+  .mega-nav__drawer-icon {
+    width: var(--icon-size-sm, 20px);
+    height: var(--icon-size-sm, 20px);
+    display: flex;
+    transition: transform 0.2s ease;
+  }
+
+  .mega-nav__drawer-icon--sm {
+    width: 16px;
+    height: 16px;
+  }
+
+  .mega-nav__drawer-link--trigger[aria-expanded='true'] > .mega-nav__drawer-icon {
+    transform: rotate(45deg);
+  }
+
+  .mega-nav__drawer-sub {
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+
+  .mega-nav__drawer-sublist {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0 var(--padding-lg);
+  }
+
+  .mega-nav__drawer-sublist--nested {
+    padding-left: var(--padding-md);
+  }
+
+  .mega-nav__drawer-sublist--deep {
+    padding-left: var(--padding-sm);
+  }
+
+  .mega-nav__drawer-sublist--deep .mega-nav__drawer-sublink {
+    padding-inline: var(--padding-sm) var(--padding-lg);
+    font-size: var(--font-size--xs, 0.8125rem);
+  }
+
+  .mega-nav__drawer-sublink {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: var(--padding-sm) var(--padding-lg);
+    font-size: var(--font-size--sm, 0.875rem);
+    color: rgb(var(--color-foreground-rgb) / 0.75);
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+
+  .mega-nav__drawer-sublink:hover {
+    color: inherit;
+  }
+
+  .mega-nav__drawer-sublink--trigger[aria-expanded='true'] > .mega-nav__drawer-icon {
+    transform: rotate(45deg);
+  }
+
+  .mega-nav__drawer-sublink--view-all {
+    font-weight: var(--font-body--weight-bold, 600);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mega-nav__nav-caret,
+    .mega-nav__drawer-icon,
+    .mega-nav__mobile-drawer-overlay,
+    .mega-nav__mobile-drawer-panel,
+    .mega-nav__mobile-panel,
+    .mega-nav__drawer-overlay,
+    .mega-nav__drawer-panel,
+    .mega-nav__drawer-sub,
+    .mega-nav__panel-list-caret {
+      transition: none;
+    }
+    .mega-nav__panel {
+      transition: none;
+    }
+  }
+{% endstylesheet %}
+
+{% unless request.design_mode %}
+  <script type="module">
+    import { hydrate } from '@theme/section-hydration';
+    const url = new URL(window.location.href);
+    url.searchParams.delete('page');
+    hydrate('{{ section.id }}', url);
+  </script>
+{% endunless %}
+
+{% schema %}
+{
+  "name": "Solstice Mega Nav",
+  "tag": "header",
+  "class": "header-section",
+  "max_blocks": 12,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Navigation"
+    },
+    {
+      "type": "paragraph",
+      "content": "Add menu item blocks below. Each block can be a direct link or a mega menu with child links."
+    },
+    {
+      "type": "number",
+      "id": "max_l2_groups",
+      "label": "Maximum L2 groups per panel",
+      "info": "Leave empty for no limit",
+      "default": 8
+    },
+    {
+      "type": "number",
+      "id": "max_l3_links",
+      "label": "Maximum L3 links per group",
+      "info": "Leave empty for no limit",
+      "default": 10
+    },
+    {
+      "type": "header",
+      "content": "Logo"
+    },
+    {
+      "type": "range",
+      "id": "logo_max_width",
+      "label": "Logo max width",
+      "min": 50,
+      "max": 400,
+      "step": 10,
+      "unit": "px",
+      "default": 200
+    },
+    {
+      "type": "header",
+      "content": "Search"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_search",
+      "label": "Show search",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Customer account"
+    },
+    {
+      "type": "paragraph",
+      "content": "Manage customer accounts in your store settings."
+    },
+    {
+      "type": "link_list",
+      "id": "customer_account_menu",
+      "label": "Account menu",
+      "default": "customer-account-main-menu"
+    },
+    {
+      "type": "header",
+      "content": "Appearance"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Width",
+      "options": [
+        { "value": "page-width", "label": "Page" },
+        { "value": "full-width", "label": "Full" }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "select",
+      "id": "actions_display_style",
+      "label": "Actions style",
+      "options": [
+        { "value": "icon", "label": "Icons" },
+        { "value": "text", "label": "Text" }
+      ],
+      "default": "icon"
+    },
+    {
+      "type": "select",
+      "id": "enable_sticky_header",
+      "label": "Sticky header",
+      "options": [
+        { "value": "always", "label": "Always" },
+        { "value": "scroll-up", "label": "On scroll up" },
+        { "value": "never", "label": "Never" }
+      ],
+      "default": "always"
+    },
+    {
+      "type": "range",
+      "id": "border_width",
+      "label": "Divider width",
+      "min": 0,
+      "max": 5,
+      "step": 0.5,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Header color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme_nav",
+      "label": "Nav row color scheme",
+      "default": "scheme-1"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "menu_item",
+      "name": "Menu item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Menu item"
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": "Link"
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": "Child menu",
+          "info": "Links from this menu appear in the mega panel or drawer accordion."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Solstice Mega Nav",
+      "blocks": [
+        {
+          "type": "menu_item",
+          "settings": {
+            "label": "Home",
+            "url": "/"
+          }
+        },
+        {
+          "type": "menu_item",
+          "settings": {
+            "label": "Shop",
+            "url": "/collections",
+            "menu": "main-menu"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

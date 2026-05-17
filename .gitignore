@@ -25,6 +25,16 @@ desktop.ini
 # Shopify theme editor (local dev store pull)
 config/settings_data.json
 
+# Business and strategy docs (public repo — keep private)
+BUSINESS_PROFILE.md
+CONTEXT.md
+docs/analytics/
+docs/design/
+docs/SOLSTICE_V1_ROADMAP.md
+
+# Agent skills config (internal tooling)
+docs/agents/
+
 # Build output (if you add a bundler)
 dist/
 .output/

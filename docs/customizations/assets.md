@@ -26,12 +26,12 @@
 
 - File: `assets/solstice-sealant-calculator.js` (loaded by `blocks/solstice-sealant-calculator.liquid` as a module)
 - Custom element: `SealantCalculator extends Component` for `<solstice-sealant-calculator>`.
-- Responsibilities: manages sidebar open/close with focus trap, preset job selection, real-time preview calculation, unit size handling (300/600/custom), wastage toggle, add-to-cart integration.
+- Responsibilities: manages modal open/close with focus trap, preset job selection, real-time preview calculation, unit size handling (300/600/custom), wastage toggle, add-to-cart integration.
 - Static calculation engine: `SealantCalculator.calculate(lengthM, widthMm, depthMm, unitSizeMl, includeWastage)` — pure function, no side effects.
 - Preset map: 10 job types (bath_tub, kitchen_sink, window_frame, expansion_joint, concrete_slab, metal_cladding, roof_flashing, floor_joint, pipe_penetration, general_gap) with recommended width/depth values.
 - ATC flow: POST to `/cart/add.js` with variant ID and calculated quantity. On success, dispatches `ThemeEvents.cartUpdate` and closes sidebar.
-- Focus management: imports `trapFocus`/`removeTrapFocus` from `@theme/focus`. Traps focus in sidebar on open, releases on close. Escape key closes sidebar.
-- Key selectors: `[ref="sidebar"]`, `[ref="triggerButton"]`, `[data-close-calculator-sidebar]`, `[ref="jointLength|Width|Depth"]`, `[ref="presetSelect"]`, `[ref="unitSize[]"]`, `[ref="wastageToggle"]`, `[ref="addToCartBtn"]`.
+- Focus management: imports `trapFocus`/`removeTrapFocus` from `@theme/focus`. Traps focus in modal on open, releases on close. Escape key closes modal.
+- Key selectors: `[ref="modal"]`, `[ref="triggerButton"]`, `[data-close-calculator-modal]`, `[ref="jointLength|Width|Depth"]`, `[ref="presetSelect"]`, `[ref="unitSize[]"]`, `[ref="wastageToggle"]`, `[ref="addToCartBtn"]`.
 
 ## `solstice-quote-form.js` (2-step quote form controller)
 

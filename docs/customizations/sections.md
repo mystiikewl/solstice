@@ -52,12 +52,12 @@ Custom theme blocks added to the upstream `product-information` section. All con
 
 - File: `blocks/solstice-sealant-calculator.liquid`
 - JS: `assets/solstice-sealant-calculator.js`
-- Purpose: Two-part sealant coverage calculator — trigger card opens sidebar dialog with joint dimension inputs, preset jobs, unit size selection, wastage toggle, and add-to-cart integration.
+- Purpose: Two-part sealant coverage calculator — trigger card opens centered modal dialog with joint dimension inputs, preset jobs, unit size selection, wastage toggle, and add-to-cart integration.
 - Custom element: `<solstice-sealant-calculator>` extends `Component`.
 - DOM contract:
-  - Trigger: `[ref="triggerButton"]` with `aria-controls` pointing to sidebar ID.
-  - Sidebar: `[ref="sidebar"]` with `role="dialog"`, `aria-modal="true"`, `data-calculator-sidebar`.
-  - Close: `[data-close-calculator-sidebar]` on overlay and close button.
+  - Trigger: `[ref="triggerButton"]` with `aria-controls` pointing to modal ID.
+  - Modal: `[ref="modal"]` with `role="dialog"`, `aria-modal="true"`, `data-calculator-modal`.
+  - Close: `[data-close-calculator-modal]` on overlay and close button.
   - Inputs: `[ref="jointLength"]`, `[ref="jointWidth"]`, `[ref="jointDepth"]`.
   - Presets: `[ref="presetSelect"]` with values matching `PRESETS` keys in JS.
   - Unit size: `[ref="unitSize[]"]` radio group (300/600/custom).
@@ -71,7 +71,7 @@ Custom theme blocks added to the upstream `product-information` section. All con
 - Calculation: `volume_ml = length_m * 1000 * width_mm * depth_mm * 0.001`, with optional 10% wastage. Units = `ceil(volume_ml / unit_size_ml)`.
 - ATC flow: POST to `/cart/add.js` with variant ID and calculated quantity. Dispatches `ThemeEvents.cartUpdate` on success.
 - Focus management: `trapFocus` on open, `removeTrapFocus` on close, Escape-to-close.
-- Conditionally visible: shows only for products with tags matching `calculator_tags` setting.
+- Conditionally visible: shows only for products with tag `sealant-calculator`.
 - Settings: `heading`, `subtitle`, `trigger_label`, `calculator_tags`, `force_show`, `default_volume_ml`.
 
 ### `solstice-quote-form` (Trade quote request)

@@ -54,9 +54,9 @@
     type="button"
     class="sealant-calculator__trigger"
     ref="triggerButton"
-    aria-controls="calculator-sidebar-{{ block.id }}"
+    aria-controls="calculator-modal-{{ block.id }}"
     aria-expanded="false"
-    on:click="/handleOpenSidebar"
+    on:click="/handleOpenModal"
   >
     <div class="sealant-calculator__trigger-content">
       <span class="sealant-calculator__trigger-icon" aria-hidden="true">
@@ -77,29 +77,29 @@
     </div>
   </button>
 
-  {%- comment -%} Sidebar Overlay {%- endcomment -%}
+  {%- comment -%} Modal Overlay {%- endcomment -%}
   <div
     class="sealant-calculator__overlay"
     ref="overlay"
-    data-close-calculator-sidebar
+    data-close-calculator-modal
     aria-hidden="true"
   ></div>
 
-  {%- comment -%} Sidebar Dialog {%- endcomment -%}
+  {%- comment -%} Modal Dialog {%- endcomment -%}
   <div
-    id="calculator-sidebar-{{ block.id }}"
-    class="sealant-calculator__sidebar"
-    ref="sidebar"
+    id="calculator-modal-{{ block.id }}"
+    class="sealant-calculator__modal"
+    ref="modal"
     role="dialog"
     aria-modal="true"
-    aria-labelledby="calculator-sidebar-title-{{ block.id }}"
+    aria-labelledby="calculator-modal-title-{{ block.id }}"
     aria-hidden="true"
-    data-calculator-sidebar
+    data-calculator-modal
   >
-    <div class="sealant-calculator__sidebar-inner">
+    <div class="sealant-calculator__modal-inner">
       {%- comment -%} Header {%- endcomment -%}
       <div class="sealant-calculator__sidebar-header">
-        <h2 id="calculator-sidebar-title-{{ block.id }}" class="sealant-calculator__sidebar-title">
+        <h2 id="calculator-modal-title-{{ block.id }}" class="sealant-calculator__modal-title">
           {{ heading | escape }}
         </h2>
         <button
@@ -107,8 +107,8 @@
           class="sealant-calculator__close"
           ref="closeButton"
           aria-label="Close calculator"
-          data-close-calculator-sidebar
-          on:click="/handleCloseSidebar"
+          data-close-calculator-modal
+          on:click="/handleCloseModal"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <line x1="18" y1="6" x2="6" y2="18"/>
@@ -426,7 +426,7 @@
   .sealant-calculator__overlay {
     position: fixed;
     inset: 0;
-    background: rgb(0 0 0 / 0.4);
+    background: rgb(0 0 0 / 0.5);
     z-index: 999;
     opacity: 0;
     visibility: hidden;
@@ -438,42 +438,47 @@
     visibility: visible;
   }
 
-  {%- comment -%} Sidebar {%- endcomment -%}
-  .sealant-calculator__sidebar {
+  {%- comment -%} Modal {%- endcomment -%}
+  .sealant-calculator__modal {
     position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: var(--calc-sidebar-width);
-    max-width: 100vw;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.95);
+    width: 520px;
+    max-width: calc(100vw - 32px);
+    max-height: calc(100vh - 64px);
     background: rgb(var(--color-background));
     z-index: 1000;
-    transform: translateX(100%);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease;
     overflow-y: auto;
-    box-shadow: -4px 0 24px rgb(0 0 0 / 0.12);
+    border-radius: 12px;
+    box-shadow: 0 24px 48px rgb(0 0 0 / 0.15), 0 8px 16px rgb(0 0 0 / 0.1);
   }
 
-  .sealant-calculator__sidebar.is-open {
-    transform: translateX(0);
+  .sealant-calculator__modal.is-open {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, -50%) scale(1);
   }
 
-  .sealant-calculator__sidebar-inner {
+  .sealant-calculator__modal-inner {
     padding: 24px;
     display: flex;
     flex-direction: column;
     gap: 20px;
   }
 
-  {%- comment -%} Sidebar Header {%- endcomment -%}
-  .sealant-calculator__sidebar-header {
+  {%- comment -%} Modal Header {%- endcomment -%}
+  .sealant-calculator__modal-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 16px;
   }
 
-  .sealant-calculator__sidebar-title {
+  .sealant-calculator__modal-title {
     font-size: var(--font-heading--size, 20px);
     font-weight: var(--font-weight-bold, 700);
     margin: 0;
@@ -751,8 +756,13 @@
 
   {%- comment -%} Mobile {%- endcomment -%}
   @media screen and (max-width: 749px) {
-    .sealant-calculator__sidebar {
-      width: 100vw;
+    .sealant-calculator__modal {
+      width: calc(100vw - 24px);
+      max-height: calc(100vh - 48px);
+    }
+
+    .sealant-calculator__modal-inner {
+      padding: 20px;
     }
 
     .sealant-calculator__dimensions {
@@ -791,7 +801,7 @@
       "type": "text",
       "id": "calculator_tags",
       "label": "Product tags",
-      "default": "sealant,coverage-calculator",
+      "default": "sealant-calculator",
       "info": "Show calculator only for products with these tags (comma-separated)"
     },
     {

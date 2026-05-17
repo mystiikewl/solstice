@@ -29,7 +29,7 @@ const PRESETS = {
  * @typedef {Object} SealantCalculatorRefs
  * @property {HTMLButtonElement} triggerButton - Trigger card button
  * @property {HTMLElement} overlay - Overlay backdrop
- * @property {HTMLElement} sidebar - Sidebar dialog
+ * @property {HTMLElement} modal - Modal dialog
  * @property {HTMLButtonElement} closeButton - Close button
  * @property {HTMLSelectElement} presetSelect - Preset job selector
  * @property {HTMLElement} presetDescription - Preset description text
@@ -111,30 +111,30 @@ class SealantCalculator extends Component {
   }
 
   /**
-   * Sidebar open handler.
+   * Modal open handler.
    */
-  handleOpenSidebar() {
-    this.refs.sidebar.setAttribute('aria-hidden', 'false');
-    this.refs.sidebar.classList.add('is-open');
+  handleOpenModal() {
+    this.refs.modal.setAttribute('aria-hidden', 'false');
+    this.refs.modal.classList.add('is-open');
     this.refs.overlay.classList.add('is-visible');
     this.refs.overlay.setAttribute('aria-hidden', 'false');
     this.refs.triggerButton.setAttribute('aria-expanded', 'true');
-    document.body.classList.add('calculator-sidebar-show');
+    document.body.classList.add('calculator-modal-show');
 
-    trapFocus(this.refs.sidebar);
+    trapFocus(this.refs.modal);
     this.refs.closeButton?.focus();
   }
 
   /**
-   * Sidebar close handler.
+   * Modal close handler.
    */
-  handleCloseSidebar() {
-    this.refs.sidebar.setAttribute('aria-hidden', 'true');
-    this.refs.sidebar.classList.remove('is-open');
+  handleCloseModal() {
+    this.refs.modal.setAttribute('aria-hidden', 'true');
+    this.refs.modal.classList.remove('is-open');
     this.refs.overlay.classList.remove('is-visible');
     this.refs.overlay.setAttribute('aria-hidden', 'true');
     this.refs.triggerButton.setAttribute('aria-expanded', 'false');
-    document.body.classList.remove('calculator-sidebar-show');
+    document.body.classList.remove('calculator-modal-show');
 
     removeTrapFocus();
     this.#resetForm();
@@ -224,7 +224,7 @@ class SealantCalculator extends Component {
 
       setTimeout(() => {
         feedback.setAttribute('hidden', '');
-        this.handleCloseSidebar();
+        this.handleCloseModal();
       }, 1500);
     } catch (error) {
       this.#showError(error.message);
@@ -295,8 +295,8 @@ class SealantCalculator extends Component {
   }
 
   #handleEscape = (event) => {
-    if (event.key === 'Escape' && this.refs.sidebar?.classList.contains('is-open')) {
-      this.handleCloseSidebar();
+    if (event.key === 'Escape' && this.refs.modal?.classList.contains('is-open')) {
+      this.handleCloseModal();
     }
   };
 

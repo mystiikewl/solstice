@@ -1,0 +1,818 @@
+{% doc %}
+  Sealant Calculator
+
+  Coverage calculator for sealant products. Opens a sidebar dialog with
+  joint dimension inputs, preset jobs, unit size selection, wastage toggle,
+  and add-to-cart integration. Conditionally visible based on product tags.
+
+  @example
+  {% content_for 'block', type: 'solstice-sealant-calculator', id: 'calculator' %}
+{% enddoc %}
+
+{% liquid
+  assign product_resource = closest.product
+  if request.visual_preview_mode and product_resource == blank
+    assign product_resource = collections.all.products.first
+  endif
+
+  if product_resource == blank
+    break
+  endif
+
+  assign calculator_tags = block.settings.calculator_tags | default: 'sealant,coverage-calculator' | split: ','
+  assign show_calculator = false
+
+  if block.settings.force_show
+    assign show_calculator = true
+  else
+    for tag in calculator_tags
+      assign tag_clean = tag | strip | downcase
+      if product_resource.tags contains tag_clean
+        assign show_calculator = true
+        break
+      endif
+    endfor
+  endif
+
+  unless show_calculator
+    break
+  endunless
+
+  assign heading = block.settings.heading | default: 'How much do you need?'
+  assign subtitle = block.settings.subtitle | default: 'Calculate coverage based on joint dimensions'
+  assign trigger_label = block.settings.trigger_label | default: 'Calculate coverage'
+%}
+
+<solstice-sealant-calculator
+  class="sealant-calculator"
+  {{ block.shopify_attributes }}
+  data-product-id="{{ product_resource.id }}"
+  data-default-volume="{{ block.settings.default_volume_ml | default: 310 }}"
+>
+  {%- comment -%} Trigger Card {%- endcomment -%}
+  <button
+    type="button"
+    class="sealant-calculator__trigger"
+    ref="triggerButton"
+    aria-controls="calculator-sidebar-{{ block.id }}"
+    aria-expanded="false"
+    on:click="/handleOpenSidebar"
+  >
+    <div class="sealant-calculator__trigger-content">
+      <span class="sealant-calculator__trigger-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+          <polyline points="7.5 4.21 12 6.81 16.5 4.21"/>
+          <polyline points="7.5 19.79 7.5 14.6 3 12"/>
+          <polyline points="21 12 16.5 14.6 16.5 19.79"/>
+          <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+          <line x1="12" y1="22.08" x2="12" y2="12"/>
+        </svg>
+      </span>
+      <div class="sealant-calculator__trigger-text">
+        <span class="sealant-calculator__trigger-heading">{{ heading | escape }}</span>
+        <span class="sealant-calculator__trigger-subtitle">{{ subtitle | escape }}</span>
+      </div>
+      <span class="sealant-calculator__trigger-cta">{{ trigger_label | escape }}</span>
+    </div>
+  </button>
+
+  {%- comment -%} Sidebar Overlay {%- endcomment -%}
+  <div
+    class="sealant-calculator__overlay"
+    ref="overlay"
+    data-close-calculator-sidebar
+    aria-hidden="true"
+  ></div>
+
+  {%- comment -%} Sidebar Dialog {%- endcomment -%}
+  <div
+    id="calculator-sidebar-{{ block.id }}"
+    class="sealant-calculator__sidebar"
+    ref="sidebar"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="calculator-sidebar-title-{{ block.id }}"
+    aria-hidden="true"
+    data-calculator-sidebar
+  >
+    <div class="sealant-calculator__sidebar-inner">
+      {%- comment -%} Header {%- endcomment -%}
+      <div class="sealant-calculator__sidebar-header">
+        <h2 id="calculator-sidebar-title-{{ block.id }}" class="sealant-calculator__sidebar-title">
+          {{ heading | escape }}
+        </h2>
+        <button
+          type="button"
+          class="sealant-calculator__close"
+          ref="closeButton"
+          aria-label="Close calculator"
+          data-close-calculator-sidebar
+          on:click="/handleCloseSidebar"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      {%- comment -%} Preset Jobs {%- endcomment -%}
+      <div class="sealant-calculator__presets">
+        <label for="preset-select-{{ block.id }}" class="sealant-calculator__label">
+          Quick preset
+        </label>
+        <select id="preset-select-{{ block.id }}" ref="presetSelect" class="sealant-calculator__select">
+          <option value="">Select a job type...</option>
+          <option value="bath_tub">Bathtub edge sealing</option>
+          <option value="kitchen_sink">Kitchen sink perimeter</option>
+          <option value="window_frame">Window frame sealing</option>
+          <option value="expansion_joint">Expansion joint</option>
+          <option value="concrete_slab">Concrete slab joint</option>
+          <option value="metal_cladding">Metal cladding seam</option>
+          <option value="roof_flashing">Roof flashing</option>
+          <option value="floor_joint">Floor joint</option>
+          <option value="pipe_penetration">Pipe penetration</option>
+          <option value="general_gap">General gap filling</option>
+        </select>
+        <p id="preset-description-{{ block.id }}" class="sealant-calculator__preset-desc" ref="presetDescription" hidden></p>
+      </div>
+
+      {%- comment -%} Dimension Inputs {%- endcomment -%}
+      <fieldset class="sealant-calculator__dimensions">
+        <legend class="sealant-calculator__fieldset-title">Joint dimensions</legend>
+
+        <div class="sealant-calculator__field">
+          <label for="joint-length-{{ block.id }}" class="sealant-calculator__label">
+            Length (m)
+          </label>
+          <input
+            type="number"
+            id="joint-length-{{ block.id }}"
+            ref="jointLength"
+            class="sealant-calculator__input"
+            data-input="length"
+            min="0.1"
+            step="0.1"
+            placeholder="e.g. 10"
+            on:input="/handlePreview"
+          >
+        </div>
+
+        <div class="sealant-calculator__field">
+          <label for="joint-width-{{ block.id }}" class="sealant-calculator__label">
+            Width (mm)
+          </label>
+          <input
+            type="number"
+            id="joint-width-{{ block.id }}"
+            ref="jointWidth"
+            class="sealant-calculator__input"
+            data-input="width"
+            min="1"
+            step="1"
+            placeholder="e.g. 10"
+            on:input="/handlePreview"
+          >
+        </div>
+
+        <div class="sealant-calculator__field">
+          <label for="joint-depth-{{ block.id }}" class="sealant-calculator__label">
+            Depth (mm)
+          </label>
+          <input
+            type="number"
+            id="joint-depth-{{ block.id }}"
+            ref="jointDepth"
+            class="sealant-calculator__input"
+            data-input="depth"
+            min="1"
+            step="1"
+            placeholder="e.g. 6"
+            on:input="/handlePreview"
+          >
+        </div>
+      </fieldset>
+
+      {%- comment -%} Unit Size Selection {%- endcomment -%}
+      <fieldset class="sealant-calculator__unit-size">
+        <legend class="sealant-calculator__fieldset-title">Package size</legend>
+
+        <div class="sealant-calculator__radio-group">
+          <label class="sealant-calculator__radio">
+            <input
+              type="radio"
+              name="unitSize-{{ block.id }}"
+              ref="unitSize[]"
+              value="300"
+              checked
+              on:change="/handlePreview"
+            >
+            <span>300ml cartridge</span>
+          </label>
+
+          <label class="sealant-calculator__radio">
+            <input
+              type="radio"
+              name="unitSize-{{ block.id }}"
+              ref="unitSize[]"
+              value="600"
+              on:change="/handlePreview"
+            >
+            <span>600ml sausage</span>
+          </label>
+
+          <label class="sealant-calculator__radio">
+            <input
+              type="radio"
+              name="unitSize-{{ block.id }}"
+              ref="unitSize[]"
+              value="custom"
+              on:change="/handlePreview"
+            >
+            <span>Custom size</span>
+          </label>
+        </div>
+
+        <div class="sealant-calculator__custom-size" ref="customSizeContainer">
+          <label for="custom-unit-size-{{ block.id }}" class="sealant-calculator__label">
+            Custom volume (ml)
+          </label>
+          <input
+            type="number"
+            id="custom-unit-size-{{ block.id }}"
+            ref="customUnitSize"
+            class="sealant-calculator__input sealant-calculator__input--small"
+            min="1"
+            step="1"
+            placeholder="e.g. 310"
+            disabled
+            on:input="/handlePreview"
+          >
+        </div>
+      </fieldset>
+
+      {%- comment -%} Wastage Toggle {%- endcomment -%}
+      <div class="sealant-calculator__wastage">
+        <label class="sealant-calculator__toggle">
+          <input
+            type="checkbox"
+            ref="wastageToggle"
+            on:change="/handlePreview"
+          >
+          <span class="sealant-calculator__toggle-track">
+            <span class="sealant-calculator__toggle-thumb"></span>
+          </span>
+          <span class="sealant-calculator__toggle-label">
+            Include 10% wastage buffer
+          </span>
+        </label>
+      </div>
+
+      {%- comment -%} Summary Preview {%- endcomment -%}
+      <div
+        class="sealant-calculator__summary"
+        ref="summaryContainer"
+        aria-live="polite"
+      >
+        <div class="sealant-calculator__summary-placeholder" ref="summaryPlaceholder">
+          <p>Enter joint dimensions to see how much sealant you need.</p>
+        </div>
+        <div class="sealant-calculator__summary-content" ref="summaryContent" hidden>
+          <div class="sealant-calculator__summary-volume">
+            <span class="sealant-calculator__summary-label">Total sealant</span>
+            <span class="sealant-calculator__summary-value" ref="summaryVolume">—</span>
+          </div>
+          <div class="sealant-calculator__summary-units">
+            <span class="sealant-calculator__summary-label">You need</span>
+            <span class="sealant-calculator__summary-value" ref="summaryUnits">—</span>
+          </div>
+        </div>
+      </div>
+
+      {%- comment -%} Error Region {%- endcomment -%}
+      <div
+        id="calculator-error-{{ block.id }}"
+        class="sealant-calculator__error"
+        ref="errorContainer"
+        role="alert"
+        aria-live="assertive"
+        hidden
+      >
+        <span ref="errorText"></span>
+      </div>
+
+      {%- comment -%} Results + ATC {%- endcomment -%}
+      <div class="sealant-calculator__results" ref="resultsContainer" hidden>
+        <div class="sealant-calculator__result-line">
+          <span ref="totalSealant"></span>
+        </div>
+        <div class="sealant-calculator__result-line">
+          <span ref="totalUnits"></span>
+        </div>
+
+        {%- comment -%} Variant Selector {%- endcomment -%}
+        <div class="sealant-calculator__variant-select" ref="variantSelectContainer" hidden>
+          <label for="calculator-variant-{{ block.id }}" class="sealant-calculator__label">
+            Select variant
+          </label>
+          <select
+            id="calculator-variant-{{ block.id }}"
+            ref="calculatorVariantSelect"
+            class="sealant-calculator__select"
+            on:change="/handlePreview"
+          >
+            {% for variant in product_resource.variants %}
+              <option value="{{ variant.id }}" {% if variant == product_resource.selected_or_first_available_variant %}selected{% endif %}>
+                {{ variant.title }} — {{ variant.price | money }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <button
+          type="button"
+          class="sealant-calculator__atc-button button button--primary"
+          ref="addToCartBtn"
+          on:click="/handleAddToCart"
+        >
+          <span class="sealant-calculator__atc-text" ref="atcButtonText">
+            Add to cart
+          </span>
+          <span class="sealant-calculator__atc-feedback" ref="atcFeedback" hidden></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</solstice-sealant-calculator>
+
+<script src="{{ 'solstice-sealant-calculator.js' | asset_url }}" type="module"></script>
+
+{% stylesheet %}
+  .sealant-calculator {
+    --calc-gap: 12px;
+    --calc-radius: var(--style-border-radius-buttons-primary, 8px);
+    --calc-sidebar-width: 420px;
+    padding-block: var(--padding-md, 16px);
+  }
+
+  {%- comment -%} Trigger Card {%- endcomment -%}
+  .sealant-calculator__trigger {
+    width: 100%;
+    padding: 16px;
+    background: rgb(var(--color-background-secondary, 245 245 245));
+    border: 1px solid rgb(var(--color-foreground-rgb) / 0.1);
+    border-radius: var(--calc-radius);
+    cursor: pointer;
+    text-align: left;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .sealant-calculator__trigger:hover {
+    border-color: rgb(var(--color-foreground-rgb) / 0.2);
+    box-shadow: 0 2px 8px rgb(var(--color-foreground-rgb) / 0.06);
+  }
+
+  .sealant-calculator__trigger-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .sealant-calculator__trigger-icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgb(var(--color-accent-rgb, 234 31 39));
+  }
+
+  .sealant-calculator__trigger-icon svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .sealant-calculator__trigger-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .sealant-calculator__trigger-heading {
+    display: block;
+    font-size: var(--font-paragraph-medium--size, 16px);
+    font-weight: var(--font-weight-semibold, 600);
+    color: rgb(var(--color-foreground));
+    line-height: 1.3;
+  }
+
+  .sealant-calculator__trigger-subtitle {
+    display: block;
+    font-size: var(--font-paragraph-small--size, 14px);
+    color: rgb(var(--color-foreground-rgb) / 0.6);
+    line-height: 1.4;
+    margin-top: 2px;
+  }
+
+  .sealant-calculator__trigger-cta {
+    flex-shrink: 0;
+    font-size: var(--font-paragraph-small--size, 14px);
+    font-weight: var(--font-weight-semibold, 600);
+    color: rgb(var(--color-accent-rgb, 234 31 39));
+  }
+
+  {%- comment -%} Overlay {%- endcomment -%}
+  .sealant-calculator__overlay {
+    position: fixed;
+    inset: 0;
+    background: rgb(0 0 0 / 0.4);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+  }
+
+  .sealant-calculator__overlay.is-visible {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  {%- comment -%} Sidebar {%- endcomment -%}
+  .sealant-calculator__sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: var(--calc-sidebar-width);
+    max-width: 100vw;
+    background: rgb(var(--color-background));
+    z-index: 1000;
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+    box-shadow: -4px 0 24px rgb(0 0 0 / 0.12);
+  }
+
+  .sealant-calculator__sidebar.is-open {
+    transform: translateX(0);
+  }
+
+  .sealant-calculator__sidebar-inner {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  {%- comment -%} Sidebar Header {%- endcomment -%}
+  .sealant-calculator__sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .sealant-calculator__sidebar-title {
+    font-size: var(--font-heading--size, 20px);
+    font-weight: var(--font-weight-bold, 700);
+    margin: 0;
+  }
+
+  .sealant-calculator__close {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: rgb(var(--color-foreground));
+    border-radius: 50%;
+    transition: background 0.15s ease;
+  }
+
+  .sealant-calculator__close:hover {
+    background: rgb(var(--color-foreground-rgb) / 0.08);
+  }
+
+  .sealant-calculator__close svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  {%- comment -%} Form Elements {%- endcomment -%}
+  .sealant-calculator__label {
+    display: block;
+    font-size: var(--font-paragraph-small--size, 14px);
+    font-weight: var(--font-weight-medium, 500);
+    color: rgb(var(--color-foreground-rgb) / 0.7);
+    margin-bottom: 6px;
+  }
+
+  .sealant-calculator__fieldset-title {
+    font-size: var(--font-paragraph-small--size, 14px);
+    font-weight: var(--font-weight-semibold, 600);
+    color: rgb(var(--color-foreground));
+    margin-bottom: 10px;
+  }
+
+  .sealant-calculator__input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid rgb(var(--color-foreground-rgb) / 0.2);
+    border-radius: var(--calc-radius);
+    font-size: var(--font-paragraph--size, 16px);
+    font-family: inherit;
+    min-height: 44px;
+    background: rgb(var(--color-background));
+    color: rgb(var(--color-foreground));
+    transition: border-color 0.15s ease;
+  }
+
+  .sealant-calculator__input:focus {
+    outline: none;
+    border-color: rgb(var(--color-accent-rgb, 234 31 39));
+    box-shadow: 0 0 0 2px rgb(var(--color-accent-rgb, 234 31 39) / 0.15);
+  }
+
+  .sealant-calculator__input.invalid {
+    border-color: rgb(220 38 38);
+  }
+
+  .sealant-calculator__input--small {
+    width: 120px;
+  }
+
+  .sealant-calculator__select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid rgb(var(--color-foreground-rgb) / 0.2);
+    border-radius: var(--calc-radius);
+    font-size: var(--font-paragraph--size, 16px);
+    font-family: inherit;
+    min-height: 44px;
+    background: rgb(var(--color-background));
+    color: rgb(var(--color-foreground));
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='2' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    cursor: pointer;
+  }
+
+  .sealant-calculator__select:focus {
+    outline: none;
+    border-color: rgb(var(--color-accent-rgb, 234 31 39));
+    box-shadow: 0 0 0 2px rgb(var(--color-accent-rgb, 234 31 39) / 0.15);
+  }
+
+  .sealant-calculator__dimensions,
+  .sealant-calculator__unit-size {
+    border: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .sealant-calculator__dimensions {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+  }
+
+  .sealant-calculator__radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .sealant-calculator__radio {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: var(--font-paragraph--size, 16px);
+  }
+
+  .sealant-calculator__radio input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    accent-color: rgb(var(--color-accent-rgb, 234 31 39));
+    cursor: pointer;
+  }
+
+  .sealant-calculator__custom-size {
+    margin-top: 8px;
+  }
+
+  {%- comment -%} Wastage Toggle {%- endcomment -%}
+  .sealant-calculator__toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+
+  .sealant-calculator__toggle input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .sealant-calculator__toggle-track {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    background: rgb(var(--color-foreground-rgb) / 0.15);
+    border-radius: 12px;
+    flex-shrink: 0;
+    transition: background 0.2s ease;
+  }
+
+  .sealant-calculator__toggle-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
+  }
+
+  .sealant-calculator__toggle input:checked + .sealant-calculator__toggle-track {
+    background: rgb(var(--color-accent-rgb, 234 31 39));
+  }
+
+  .sealant-calculator__toggle input:checked + .sealant-calculator__toggle-track .sealant-calculator__toggle-thumb {
+    transform: translateX(20px);
+  }
+
+  .sealant-calculator__toggle-label {
+    font-size: var(--font-paragraph-small--size, 14px);
+    color: rgb(var(--color-foreground));
+  }
+
+  {%- comment -%} Summary {%- endcomment -%}
+  .sealant-calculator__summary {
+    padding: 16px;
+    background: rgb(var(--color-background-secondary, 245 245 245));
+    border-radius: var(--calc-radius);
+  }
+
+  .sealant-calculator__summary-placeholder p {
+    margin: 0;
+    font-size: var(--font-paragraph-small--size, 14px);
+    color: rgb(var(--color-foreground-rgb) / 0.5);
+    text-align: center;
+  }
+
+  .sealant-calculator__summary-content {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .sealant-calculator__summary-volume,
+  .sealant-calculator__summary-units {
+    text-align: center;
+    flex: 1;
+  }
+
+  .sealant-calculator__summary-label {
+    display: block;
+    font-size: var(--font-paragraph-small--size, 14px);
+    color: rgb(var(--color-foreground-rgb) / 0.6);
+    margin-bottom: 4px;
+  }
+
+  .sealant-calculator__summary-value {
+    display: block;
+    font-size: var(--font-heading--size, 20px);
+    font-weight: var(--font-weight-bold, 700);
+    color: rgb(var(--color-foreground));
+  }
+
+  {%- comment -%} Error {%- endcomment -%}
+  .sealant-calculator__error {
+    padding: 12px;
+    background: rgb(254 242 242);
+    border: 1px solid rgb(252 165 165);
+    border-radius: var(--calc-radius);
+    color: rgb(185 28 28);
+    font-size: var(--font-paragraph-small--size, 14px);
+  }
+
+  {%- comment -%} Results + ATC {%- endcomment -%}
+  .sealant-calculator__results {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .sealant-calculator__result-line {
+    font-size: var(--font-paragraph--size, 16px);
+    color: rgb(var(--color-foreground));
+  }
+
+  .sealant-calculator__variant-select {
+    margin-top: 4px;
+  }
+
+  .sealant-calculator__atc-button {
+    width: 100%;
+    position: relative;
+    min-height: 48px;
+  }
+
+  .sealant-calculator__atc-feedback {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgb(var(--color-accent-rgb, 234 31 39));
+    color: white;
+    font-weight: var(--font-weight-semibold, 600);
+    border-radius: var(--calc-radius);
+  }
+
+  .sealant-calculator__preset-desc {
+    margin-top: 6px;
+    font-size: var(--font-paragraph-small--size, 14px);
+    color: rgb(var(--color-foreground-rgb) / 0.6);
+    font-style: italic;
+  }
+
+  {%- comment -%} Mobile {%- endcomment -%}
+  @media screen and (max-width: 749px) {
+    .sealant-calculator__sidebar {
+      width: 100vw;
+    }
+
+    .sealant-calculator__dimensions {
+      grid-template-columns: 1fr;
+    }
+
+    .sealant-calculator__trigger-cta {
+      display: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Sealant calculator",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "How much do you need?"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Calculate coverage based on joint dimensions"
+    },
+    {
+      "type": "text",
+      "id": "trigger_label",
+      "label": "Trigger button label",
+      "default": "Calculate coverage"
+    },
+    {
+      "type": "text",
+      "id": "calculator_tags",
+      "label": "Product tags",
+      "default": "sealant,coverage-calculator",
+      "info": "Show calculator only for products with these tags (comma-separated)"
+    },
+    {
+      "type": "checkbox",
+      "id": "force_show",
+      "label": "Always show",
+      "default": false,
+      "info": "Ignore tag filtering and always display the calculator"
+    },
+    {
+      "type": "number",
+      "id": "default_volume_ml",
+      "label": "Default tube volume (ml)",
+      "default": 310,
+      "info": "Standard tube volume for coverage calculation"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Sealant calculator"
+    }
+  ]
+}
+{% endschema %}

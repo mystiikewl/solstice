@@ -357,5 +357,68 @@
       "default_title": "Default Title",
       "sticky_add_to_cart": "Quick add to cart bar"
     }
+  },
+  "calculator": {
+    "sealant": {
+      "trigger_heading": "How much do you need?",
+      "trigger_subtitle": "Calculate coverage based on joint dimensions",
+      "trigger_cta": "Calculate coverage",
+      "sidebar_title": "Coverage calculator",
+      "close_label": "Close calculator",
+      "preset_label": "Quick preset",
+      "preset_placeholder": "Select a job type...",
+      "dimensions_title": "Joint dimensions",
+      "length_label": "Length (m)",
+      "width_label": "Width (mm)",
+      "depth_label": "Depth (mm)",
+      "length_placeholder": "e.g. 10",
+      "width_placeholder": "e.g. 10",
+      "depth_placeholder": "e.g. 6",
+      "unit_size_title": "Package size",
+      "unit_300ml": "300ml cartridge",
+      "unit_600ml": "600ml sausage",
+      "unit_custom": "Custom size",
+      "custom_size_label": "Custom volume (ml)",
+      "custom_size_placeholder": "e.g. 310",
+      "wastage_label": "Include 10% wastage buffer",
+      "summary_placeholder": "Enter joint dimensions to see how much sealant you need.",
+      "summary_volume_label": "Total sealant",
+      "summary_units_label": "You need",
+      "summary_units_plural": "units",
+      "summary_units_singular": "unit",
+      "result_sealant": "Total sealant required: {{ volume }}",
+      "result_units": "You need {{ units }} x {{ size }}ml unit{{ plural }}",
+      "variant_label": "Select variant",
+      "atc_default": "Add to cart",
+      "atc_with_variant": "Add {{ units }} x {{ variant }} to Cart",
+      "atc_success": "Added to cart!",
+      "atc_error": "Failed to add to cart",
+      "error_select_variant": "Please select a variant.",
+      "error_invalid_input": "Please enter valid dimensions greater than zero.",
+      "presets": {
+        "bath_tub": "Bathtub edge sealing",
+        "kitchen_sink": "Kitchen sink perimeter",
+        "window_frame": "Window frame sealing",
+        "expansion_joint": "Expansion joint",
+        "concrete_slab": "Concrete slab joint",
+        "metal_cladding": "Metal cladding seam",
+        "roof_flashing": "Roof flashing",
+        "floor_joint": "Floor joint",
+        "pipe_penetration": "Pipe penetration",
+        "general_gap": "General gap filling"
+      },
+      "preset_descriptions": {
+        "bath_tub": "Typical bathtub edge sealing — narrow gap between tub and tile.",
+        "kitchen_sink": "Kitchen sink perimeter — tight seal against splashback.",
+        "window_frame": "Window frame to wall sealing — moderate movement joint.",
+        "expansion_joint": "Concrete expansion joint — high movement, deep pour.",
+        "concrete_slab": "Concrete slab control joint — structural movement.",
+        "metal_cladding": "Metal cladding seam sealing — weatherproofing.",
+        "roof_flashing": "Roof flashing detail — fine weatherproofing bead.",
+        "floor_joint": "Floor joint filling — square profile for traffic areas.",
+        "pipe_penetration": "Pipe penetration sealing — around services through walls.",
+        "general_gap": "General gap filling — small gaps and cracks."
+      }
+    }
   }
 }

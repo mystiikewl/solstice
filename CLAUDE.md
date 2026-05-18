@@ -13,6 +13,7 @@ Horizon is a JSON template theme. Structure:
 - `config/` - Theme settings (schema + data)
 - `locales/` - Translation files
 - `layout/` - Layout wrappers (theme.liquid)
+- `docs/solutions/` — documented solutions to past problems (bugs, best practices, workflow patterns), organized by category with YAML frontmatter (`module`, `tags`, `problem_type`). Relevant when implementing or debugging in documented areas.
 
 ## Development Commands
 

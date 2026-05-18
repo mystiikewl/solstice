@@ -1,0 +1,119 @@
+{%- if section.blocks.size > 0 -%}
+  <div class="mega-nav__panels" data-mega-panels hidden>
+    {%- for block in section.blocks -%}
+      {%- assign block_menu = linklists[block.settings.menu] -%}
+      {%- assign block_label = block.settings.label | strip -%}
+      {%- assign block_url = block.settings.url -%}
+
+      {%- if block_label == blank -%}
+        {%- continue -%}
+      {%- endif -%}
+
+      {%- if block_menu == blank or block_menu.links.size == 0 -%}
+        {%- continue -%}
+      {%- endif -%}
+
+      <div
+        id="mega-panel-{{ block.id }}"
+        class="mega-nav__panel"
+        data-mega-panel
+      >
+        <div class="mega-nav__panel-list" data-panel-list>
+          <div class="mega-nav__panel-list-l2">
+            {%- if block_url != blank -%}
+              <div class="mega-nav__panel-list-view-all">
+                <a href="{{ block_url }}" class="mega-nav__panel-list-link mega-nav__panel-list-link--view-all">
+                  {{ 'actions.view_all' | t }} {{ block_label | escape }}
+                </a>
+              </div>
+            {%- endif -%}
+            {%- for childlink in block_menu.links limit: section.settings.max_l2_groups -%}
+              <div class="mega-nav__panel-list-item">
+                {%- if childlink.links != blank -%}
+                  <button
+                    type="button"
+                    class="mega-nav__panel-list-link mega-nav__panel-list-link--trigger"
+                    aria-expanded="false"
+                    aria-controls="l3-{{ block.id }}-{{ forloop.index }}"
+                    data-l2-trigger
+                  >
+                    <span>{{ childlink.title | escape }}</span>
+                    <span class="mega-nav__panel-list-caret" aria-hidden="true">›</span>
+                  </button>
+                {%- else -%}
+                  <a
+                    href="{{ childlink.url }}"
+                    class="mega-nav__panel-list-link mega-nav__panel-list-link--l2"
+                  >
+                    {{ childlink.title | escape }}
+                  </a>
+                {%- endif -%}
+              </div>
+            {%- endfor -%}
+          </div>
+          <div class="mega-nav__panel-list-l3" data-panel-l3-area>
+            {%- for childlink in block_menu.links limit: section.settings.max_l2_groups -%}
+              {%- if childlink.links != blank -%}
+                <div
+                  id="l3-{{ block.id }}-{{ forloop.index }}"
+                  class="mega-nav__panel-l3-group"
+                  data-l3-group
+                >
+                  <div class="mega-nav__panel-l3-heading">{{ childlink.title | escape }}</div>
+                  {%- for grandchildlink in childlink.links limit: section.settings.max_l3_links -%}
+                    {%- if grandchildlink.links != blank -%}
+                      <button
+                        type="button"
+                        class="mega-nav__panel-list-link mega-nav__panel-list-link--trigger mega-nav__panel-list-link--l3-trigger"
+                        aria-expanded="false"
+                        aria-controls="l4-{{ block.id }}-{{ forloop.parentloop.index }}-{{ forloop.index }}"
+                        data-l3-trigger
+                      >
+                        <span>{{ grandchildlink.title | escape }}</span>
+                        <span class="mega-nav__panel-list-caret" aria-hidden="true">›</span>
+                      </button>
+                    {%- else -%}
+                      <a
+                        href="{{ grandchildlink.url }}"
+                        class="mega-nav__panel-l3-link"
+                        {% if grandchildlink.current %}aria-current="page"{% endif %}
+                      >
+                        {{ grandchildlink.title | escape }}
+                      </a>
+                    {%- endif -%}
+                  {%- endfor -%}
+                </div>
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+          <div class="mega-nav__panel-list-l4" data-panel-l4-area>
+            {%- for childlink in block_menu.links limit: section.settings.max_l2_groups -%}
+              {%- if childlink.links != blank -%}
+                {%- for grandchildlink in childlink.links limit: section.settings.max_l3_links -%}
+                  {%- if grandchildlink.links != blank -%}
+                    <div
+                      id="l4-{{ block.id }}-{{ forloop.parentloop.index }}-{{ forloop.index }}"
+                      class="mega-nav__panel-l4-group"
+                      data-l4-group
+                    >
+                      <div class="mega-nav__panel-l4-heading">{{ grandchildlink.title | escape }}</div>
+                      {%- for greatgrandchildlink in grandchildlink.links limit: section.settings.max_l3_links -%}
+                        <a
+                          href="{{ greatgrandchildlink.url }}"
+                          class="mega-nav__panel-l4-link"
+                          {% if greatgrandchildlink.current %}aria-current="page"{% endif %}
+                        >
+                          {{ greatgrandchildlink.title | escape }}
+                        </a>
+                      {%- endfor -%}
+                    </div>
+                  {%- endif -%}
+                {%- endfor -%}
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+        </div>
+      </div>
+    {%- endfor -%}
+  </div>
+{%- endif -%}

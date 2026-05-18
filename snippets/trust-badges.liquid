@@ -1,0 +1,107 @@
+{% doc %}
+  Trust Badges renderer.
+
+  @param years_text {String} Years number (e.g. "30+")
+  @param years_label {String} Years label
+  @param locations_text {String} Location count
+  @param locations_label {String} Location label
+  @param owned_text {String} Owned text
+  @param call_text {String} Call prefix
+  @param phone_number {String} Phone number
+{% enddoc %}
+
+<div class="trust-badges">
+  <div class="trust-badges__grid">
+    <div class="trust-badges__badge">
+      <svg class="trust-badges__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20 13V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7m16 0v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-5m16 0h-2.586a1 1 0 0 0-.707.293l-2.414 2.414a1 1 0 0 1-.707.293h-3.172a1 1 0 0 1-.707-.293l-2.414-2.414A1 1 0 0 0 6.586 13H4"/>
+        <path d="M12 9v4"/>
+        <path d="M10 11l2 2 2-2"/>
+        <path d="M9 7h6"/>
+      </svg>
+      <p class="trust-badges__text"><strong>{{ years_text | default: '30+' }}</strong> {{ years_label | default: 'years in the trade' }}</p>
+    </div>
+
+    <div class="trust-badges__badge">
+      <svg class="trust-badges__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      <p class="trust-badges__text"><strong>{{ locations_text | default: '4' }}</strong> {{ locations_label | default: 'store locations' }}</p>
+    </div>
+
+    <div class="trust-badges__badge">
+      <svg class="trust-badges__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
+        <path d="M2 12h20"/>
+      </svg>
+      <p class="trust-badges__text">{{ owned_text | default: 'Australian owned & operated' }}</p>
+    </div>
+
+    <div class="trust-badges__badge">
+      <svg class="trust-badges__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+      </svg>
+      <p class="trust-badges__text">{{ call_text | default: 'Call us' }} <a href="tel:{{ phone_number | escape }}" class="trust-badges__phone">{{ phone_number | default: '(07) 3356 0000' }}</a></p>
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .trust-badges {
+    padding-block: var(--padding-sm, 8px);
+  }
+
+  .trust-badges__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--gap-sm, 12px);
+  }
+
+  .trust-badges__badge {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-sm, 10px);
+  }
+
+  .trust-badges__icon {
+    inline-size: 28px;
+    block-size: 28px;
+    flex-shrink: 0;
+    color: rgb(var(--color-accent));
+  }
+
+  .trust-badges__text {
+    font-size: var(--font-paragraph-small--size, 0.8125rem);
+    line-height: 1.3;
+    color: rgb(var(--color-foreground-rgb) / 0.85);
+    margin: 0;
+  }
+
+  .trust-badges__text strong {
+    color: rgb(var(--color-foreground));
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .trust-badges__phone {
+    color: rgb(var(--color-accent));
+    text-decoration: none;
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .trust-badges__phone:hover {
+    text-decoration: underline;
+  }
+
+  @media screen and (max-width: 480px) {
+    .trust-badges__grid {
+      gap: var(--gap-xs, 10px);
+    }
+
+    .trust-badges__icon {
+      inline-size: 24px;
+      block-size: 24px;
+    }
+  }
+{% endstylesheet %}

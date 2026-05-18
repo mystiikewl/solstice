@@ -1,0 +1,170 @@
+<aside
+  id="mega-nav-drawer-{{ section.id }}"
+  class="mega-nav__drawer"
+  data-drawer
+  aria-label="{{ 'accessibility.header_navigation_label' | t }}"
+  aria-hidden="true"
+  role="dialog"
+  aria-modal="true"
+>
+  <div class="mega-nav__drawer-overlay" data-drawer-close></div>
+  <div class="mega-nav__drawer-panel">
+    <div class="mega-nav__drawer-header">
+      <button
+        type="button"
+        class="mega-nav__drawer-close"
+        data-drawer-close
+        aria-label="{{ 'actions.close' | t }}"
+      >
+        <span class="svg-wrapper">
+          {{- 'icon-close.svg' | inline_asset_content -}}
+        </span>
+      </button>
+    </div>
+    {%- if section.blocks.size > 0 -%}
+      <nav class="mega-nav__drawer-nav">
+        <ul class="mega-nav__drawer-list">
+          {%- for block in section.blocks -%}
+            {%- assign block_menu = linklists[block.settings.menu] -%}
+            {%- assign block_label = block.settings.label | strip -%}
+            {%- assign block_url = block.settings.url -%}
+            {%- assign has_children = false -%}
+
+            {%- if block_label == blank -%}
+              {%- continue -%}
+            {%- endif -%}
+
+            {%- if block_menu != blank and block_menu.links.size > 0 -%}
+              {%- assign has_children = true -%}
+            {%- endif -%}
+
+            {%- unless has_children or block_url != blank -%}
+              {%- continue -%}
+            {%- endunless -%}
+
+            <li class="mega-nav__drawer-item">
+              {%- if has_children -%}
+                <button
+                  type="button"
+                  class="mega-nav__drawer-link mega-nav__drawer-link--trigger"
+                  aria-expanded="false"
+                  aria-controls="drawer-sub-{{ block.id }}"
+                  data-accordion-trigger
+                >
+                  <span>{{ block_label | escape }}</span>
+                  <span class="svg-wrapper mega-nav__drawer-icon">
+                    {{- 'icon-plus.svg' | inline_asset_content -}}
+                  </span>
+                </button>
+                <div
+                  id="drawer-sub-{{ block.id }}"
+                  class="mega-nav__drawer-sub"
+                  hidden
+                  data-accordion-panel
+                >
+                  <ul class="mega-nav__drawer-sublist">
+                    {%- if block_url != blank -%}
+                      <li class="mega-nav__drawer-subitem">
+                        <a href="{{ block_url }}" class="mega-nav__drawer-sublink mega-nav__drawer-sublink--view-all">
+                          {{ 'actions.view_all' | t }} {{ block_label | escape }}
+                        </a>
+                      </li>
+                    {%- endif -%}
+                    {%- for childlink in block_menu.links -%}
+                      <li class="mega-nav__drawer-subitem">
+                        {%- if childlink.links != blank -%}
+                          <button
+                            type="button"
+                            class="mega-nav__drawer-sublink mega-nav__drawer-sublink--trigger"
+                            aria-expanded="false"
+                            aria-controls="drawer-sub-{{ block.id }}-{{ forloop.index }}"
+                            data-accordion-trigger
+                          >
+                            <span>{{ childlink.title | escape }}</span>
+                            <span class="svg-wrapper mega-nav__drawer-icon mega-nav__drawer-icon--sm">
+                              {{- 'icon-plus.svg' | inline_asset_content -}}
+                            </span>
+                          </button>
+                          <div
+                            id="drawer-sub-{{ block.id }}-{{ forloop.index }}"
+                            class="mega-nav__drawer-sub"
+                            hidden
+                            data-accordion-panel
+                          >
+                            <ul class="mega-nav__drawer-sublist mega-nav__drawer-sublist--nested">
+                              {%- for grandchildlink in childlink.links -%}
+                                <li>
+                                  {%- if grandchildlink.links != blank -%}
+                                    <button
+                                      type="button"
+                                      class="mega-nav__drawer-sublink mega-nav__drawer-sublink--trigger"
+                                      aria-expanded="false"
+                                      aria-controls="drawer-sub-{{ block.id }}-{{ forloop.parentloop.index }}-{{ forloop.index }}"
+                                      data-accordion-trigger
+                                    >
+                                      <span>{{ grandchildlink.title | escape }}</span>
+                                      <span class="svg-wrapper mega-nav__drawer-icon mega-nav__drawer-icon--sm">
+                                        {{- 'icon-plus.svg' | inline_asset_content -}}
+                                      </span>
+                                    </button>
+                                    <div
+                                      id="drawer-sub-{{ block.id }}-{{ forloop.parentloop.index }}-{{ forloop.index }}"
+                                      class="mega-nav__drawer-sub"
+                                      hidden
+                                      data-accordion-panel
+                                    >
+                                      <ul class="mega-nav__drawer-sublist mega-nav__drawer-sublist--nested mega-nav__drawer-sublist--deep">
+                                        {%- for greatgrandchildlink in grandchildlink.links -%}
+                                          <li>
+                                            <a
+                                              href="{{ greatgrandchildlink.url }}"
+                                              class="mega-nav__drawer-sublink"
+                                              {% if greatgrandchildlink.current %}aria-current="page"{% endif %}
+                                            >
+                                              {{ greatgrandchildlink.title | escape }}
+                                            </a>
+                                          </li>
+                                        {%- endfor -%}
+                                      </ul>
+                                    </div>
+                                  {%- else -%}
+                                    <a
+                                      href="{{ grandchildlink.url }}"
+                                      class="mega-nav__drawer-sublink"
+                                      {% if grandchildlink.current %}aria-current="page"{% endif %}
+                                    >
+                                      {{ grandchildlink.title | escape }}
+                                    </a>
+                                  {%- endif -%}
+                                </li>
+                              {%- endfor -%}
+                            </ul>
+                          </div>
+                        {%- else -%}
+                          <a
+                            href="{{ childlink.url }}"
+                            class="mega-nav__drawer-sublink"
+                            {% if childlink.current %}aria-current="page"{% endif %}
+                          >
+                            {{ childlink.title | escape }}
+                          </a>
+                        {%- endif -%}
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                </div>
+              {%- else -%}
+                <a
+                  href="{{ block_url }}"
+                  class="mega-nav__drawer-link mega-nav__drawer-link--direct"
+                >
+                  {{ block_label | escape }}
+                </a>
+              {%- endif -%}
+            </li>
+          {%- endfor -%}
+        </ul>
+      </nav>
+    {%- endif -%}
+  </div>
+</aside>

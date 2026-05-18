@@ -1,0 +1,106 @@
+{% doc %}
+  Buy Mode Toggle
+
+  Renders a Single Buy vs Box Buy toggle above the variant picker.
+
+  @example
+  {% content_for 'block', type: 'solstice-buy-mode-toggle', id: 'buy-mode' %}
+{% enddoc %}
+
+{% liquid
+  assign product_resource = closest.product
+  if request.visual_preview_mode and product_resource == blank
+    assign product_resource = collections.all.products.first
+  endif
+
+  if product_resource == blank
+    break
+  endif
+
+  assign single_keywords = block.settings.single_keywords | default: 'single,each,unit'
+  assign box_keywords = block.settings.box_keywords | default: 'box,bulk,carton,pack'
+  assign single_keywords_array = single_keywords | split: ','
+  assign box_keywords_array = box_keywords | split: ','
+
+  assign package_option_index = nil
+  assign has_single_variant = false
+  assign has_box_variant = false
+
+  for option in product_resource.options_with_values
+    assign option_name_down = option.name | downcase
+    if option_name_down contains 'package' or option_name_down contains 'type' or option_name_down contains 'size' or option_name_down contains 'quantity'
+      for value in option.values
+        assign value_down = value | downcase
+        for keyword in single_keywords_array
+          assign keyword_clean = keyword | strip | downcase
+          if value_down contains keyword_clean
+            assign has_single_variant = true
+          endif
+        endfor
+        for keyword in box_keywords_array
+          assign keyword_clean = keyword | strip | downcase
+          if value_down contains keyword_clean
+            assign has_box_variant = true
+          endif
+        endfor
+      endfor
+
+      if has_single_variant and has_box_variant
+        assign package_option_index = forloop.index0
+        break
+      else
+        assign has_single_variant = false
+        assign has_box_variant = false
+      endif
+    endif
+  endfor
+
+  unless has_single_variant and has_box_variant
+    break
+  endunless
+%}
+
+{% render 'buy-mode-toggle',
+  product: product_resource,
+  product_id: product_resource.id,
+  option_index: package_option_index,
+  single_keywords: single_keywords_array,
+  box_keywords: box_keywords_array,
+  show_unit_savings: block.settings.show_unit_savings,
+  block_id: block.id,
+  block_attributes: block.shopify_attributes
+%}
+
+{% schema %}
+{
+  "name": "Buy mode toggle",
+  "settings": [
+    {
+      "type": "text",
+      "id": "single_keywords",
+      "label": "Single variant keywords",
+      "default": "single,each,unit",
+      "info": "Comma-separated keywords to identify single-unit variants"
+    },
+    {
+      "type": "text",
+      "id": "box_keywords",
+      "label": "Box variant keywords",
+      "default": "box,bulk,carton,pack",
+      "info": "Comma-separated keywords to identify box/bulk variants"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_unit_savings",
+      "label": "Show per-unit savings",
+      "default": true,
+      "info": "Display savings when buying by the box"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Buy mode toggle"
+    }
+  ]
+}
+{% endschema %}

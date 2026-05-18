@@ -1,0 +1,169 @@
+{% doc %}
+  Buy Mode Toggle renderer.
+
+  @param product {Object} Product resource for variant loop
+  @param product_id {String} Product resource ID
+  @param option_index {Number} Index of the package option
+  @param single_keywords {Array} Keywords to identify single variants
+  @param box_keywords {Array} Keywords to identify box variants
+  @param show_unit_savings {Boolean} Whether to show savings badge
+  @param block_id {String} Unique block ID
+  @param block_attributes {String} block.shopify_attributes output
+{% enddoc %}
+
+<solstice-buy-mode-toggle
+  class="buy-mode-toggle"
+  {{ block_attributes }}
+  data-option-index="{{ option_index }}"
+  data-product-id="{{ product_id }}"
+>
+  <div class="buy-mode-toggle__options" role="radiogroup" aria-label="Purchase mode">
+    {% for option in product.options_with_values %}
+      {% if forloop.index0 == option_index %}
+        {% for value in option.values %}
+          {% liquid
+            assign value_down = value | downcase
+            assign is_single = false
+            assign is_box = false
+
+            for keyword in single_keywords
+              assign keyword_clean = keyword | strip | downcase
+              if value_down contains keyword_clean
+                assign is_single = true
+              endif
+            endfor
+
+            for keyword in box_keywords
+              assign keyword_clean = keyword | strip | downcase
+              if value_down contains keyword_clean
+                assign is_box = true
+              endif
+            endfor
+          %}
+
+          {% if is_single or is_box %}
+            {% liquid
+              assign matching_variants = ''
+              for variant in product.variants
+                assign variant_option = variant.options[option_index] | downcase
+                if variant_option == value_down
+                  if matching_variants == ''
+                    assign matching_variants = variant.id | append: ':' | append: variant.price
+                  else
+                    assign matching_variants = matching_variants | append: ',' | append: variant.id | append: ':' | append: variant.price
+                  endif
+                  break
+                endif
+              endfor
+
+              assign variant_data = matching_variants | split: ':'
+              assign variant_price = variant_data[1] | times: 1
+              assign mode = 'single'
+              if is_box
+                assign mode = 'box'
+              endif
+            %}
+
+            <button
+              type="button"
+              class="buy-mode-toggle__option"
+              data-mode="{{ mode }}"
+              data-value="{{ value | escape }}"
+              data-price-cents="{{ variant_price }}"
+              role="radio"
+              aria-checked="{% if option.selected_value == value %}true{% else %}false{% endif %}"
+              {% if option.selected_value == value %}data-active{% endif %}
+            >
+              <span class="buy-mode-toggle__label">{{ value | escape }}</span>
+              <span class="buy-mode-toggle__price">{{ variant_price | money }}</span>
+            </button>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  {% if show_unit_savings %}
+    <div class="buy-mode-toggle__savings-badge" data-savings-badge hidden>
+      <span class="buy-mode-toggle__savings-icon" aria-hidden="true">↓</span>
+      <span data-savings-text></span>
+    </div>
+  {% endif %}
+</solstice-buy-mode-toggle>
+
+<script src="{{ 'component-buy-mode-toggle.js' | asset_url }}" type="module"></script>
+
+{% stylesheet %}
+  .buy-mode-toggle {
+    --toggle-gap: var(--gap-sm, 8px);
+    --toggle-radius: var(--style-border-radius-buttons-primary, 8px);
+    --toggle-padding: var(--padding-md, 12px) var(--padding-lg, 16px);
+  }
+
+  .buy-mode-toggle__options {
+    display: flex;
+    gap: var(--toggle-gap);
+  }
+
+  .buy-mode-toggle__option {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--gap-xs, 4px);
+    padding: var(--toggle-padding);
+    border: 2px solid rgb(var(--color-foreground-rgb) / 0.15);
+    border-radius: var(--toggle-radius);
+    background: transparent;
+    color: rgb(var(--color-foreground-rgb) / 0.7);
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+    font-family: inherit;
+    min-block-size: 44px;
+  }
+
+  .buy-mode-toggle__option[data-active] {
+    border-color: rgb(var(--color-accent));
+    background-color: rgb(var(--color-accent) / 0.05);
+    color: rgb(var(--color-foreground));
+  }
+
+  .buy-mode-toggle__option:focus-visible {
+    outline: 2px solid rgb(var(--color-focus));
+    outline-offset: 2px;
+  }
+
+  .buy-mode-toggle__label {
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-paragraph-small--size);
+  }
+
+  .buy-mode-toggle__price {
+    font-size: var(--font-paragraph-small--size);
+    opacity: 0.8;
+  }
+
+  .buy-mode-toggle__savings-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--gap-xs, 4px);
+    margin-block-start: var(--gap-sm, 8px);
+    padding: var(--gap-xs, 4px) var(--padding-sm, 10px);
+    background: rgb(var(--color-accent) / 0.1);
+    border: 1px solid rgb(var(--color-accent) / 0.3);
+    border-radius: 100px;
+    font-size: var(--font-paragraph-small--size);
+    font-weight: var(--font-weight-semibold);
+    color: rgb(var(--color-accent));
+  }
+
+  .buy-mode-toggle__savings-icon {
+    font-size: 0.85em;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .buy-mode-toggle__option {
+      transition-duration: 0.01ms;
+    }
+  }
+{% endstylesheet %}

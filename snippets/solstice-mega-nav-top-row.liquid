@@ -1,0 +1,57 @@
+<div class="mega-nav__top-row">
+  <div class="mega-nav__inner{% if section.settings.section_width == 'page-width' %} mega-nav__inner--page-width{% endif %}">
+    <details class="mega-nav__mobile-menu" data-mobile-menu>
+      <summary
+        class="mega-nav__menu-button"
+        aria-label="{{ 'accessibility.menu' | t }}"
+        aria-controls="mega-nav-mobile-drawer-{{ section.id }}"
+      >
+        <span class="svg-wrapper">
+          {{- 'icon-menu.svg' | inline_asset_content -}}
+        </span>
+      </summary>
+
+      <div class="mega-nav__mobile-drawer-overlay" data-mobile-drawer-close></div>
+      <aside
+        id="mega-nav-mobile-drawer-{{ section.id }}"
+        class="mega-nav__mobile-drawer-panel"
+        aria-label="{{ 'accessibility.header_navigation_label' | t }}"
+        role="dialog"
+        aria-modal="true"
+      >
+        <div class="mega-nav__drawer-header">
+          <button
+            type="button"
+            class="mega-nav__drawer-close"
+            data-mobile-drawer-close
+            aria-label="{{ 'actions.close' | t }}"
+          >
+            <span class="svg-wrapper">
+              {{- 'icon-close.svg' | inline_asset_content -}}
+            </span>
+          </button>
+        </div>
+
+        {% render 'solstice-mega-nav-mobile-tree', section: section %}
+      </aside>
+    </details>
+
+    <div class="mega-nav__logo">
+      {%- if settings.logo -%}
+        <a href="{{ routes.root_url }}">
+          {% assign logo_width = section.settings.logo_max_width | default: 200 %}
+          {{ settings.logo | image_url: width: logo_width | image_tag: alt: shop.name, class: 'mega-nav__logo-img' }}
+        </a>
+      {%- else -%}
+        <a href="{{ routes.root_url }}">
+          <span class="h3 mega-nav__logo-text">{{ shop.name }}</span>
+        </a>
+      {%- endif -%}
+    </div>
+
+    <div class="mega-nav__actions">
+      {{ search }}
+      {{ actions }}
+    </div>
+  </div>
+</div>

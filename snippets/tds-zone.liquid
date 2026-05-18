@@ -1,0 +1,77 @@
+{% doc %}
+  TDS Zone renderer.
+
+  @param heading {String} Section heading
+  @param tds_url {String} TDS document URL
+  @param sds_url {String} SDS document URL
+{% enddoc %}
+
+<div class="tds-zone">
+  <h4 class="tds-zone__heading">{{ heading | escape }}</h4>
+
+  <div class="tds-zone__links">
+    {% if tds_url != blank %}
+      <a href="{{ tds_url }}" class="tds-zone__link" target="_blank" rel="noopener">
+        <span class="tds-zone__icon" aria-hidden="true">PDF</span>
+        <span class="tds-zone__label">Technical Data Sheet (TDS)</span>
+      </a>
+    {% endif %}
+
+    {% if sds_url != blank %}
+      <a href="{{ sds_url }}" class="tds-zone__link" target="_blank" rel="noopener">
+        <span class="tds-zone__icon" aria-hidden="true">PDF</span>
+        <span class="tds-zone__label">Safety Data Sheet (SDS)</span>
+      </a>
+    {% endif %}
+  </div>
+</div>
+
+{% stylesheet %}
+  .tds-zone {
+    padding-block: var(--padding-sm, 8px);
+  }
+
+  .tds-zone__heading {
+    font-size: var(--font-paragraph-small--size);
+    font-weight: var(--font-weight-semibold);
+    margin-block-end: var(--gap-sm, 8px);
+  }
+
+  .tds-zone__links {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-xs, 6px);
+  }
+
+  .tds-zone__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--gap-sm, 8px);
+    text-decoration: none;
+    color: rgb(var(--color-foreground));
+    padding: var(--gap-xs, 6px) 0;
+    font-size: var(--font-paragraph-small--size);
+  }
+
+  .tds-zone__link:hover {
+    text-decoration: underline;
+  }
+
+  .tds-zone__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 28px;
+    block-size: 28px;
+    font-size: 10px;
+    font-weight: var(--font-weight-bold);
+    background: rgb(var(--color-foreground-rgb) / 0.08);
+    border-radius: var(--radius-xs, 4px);
+    color: rgb(var(--color-foreground-rgb) / 0.6);
+    flex-shrink: 0;
+  }
+
+  .tds-zone__label {
+    color: rgb(var(--color-accent));
+  }
+{% endstylesheet %}

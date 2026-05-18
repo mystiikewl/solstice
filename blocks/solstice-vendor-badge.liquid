@@ -1,0 +1,63 @@
+{% doc %}
+  Vendor Badge
+
+  Displays the product vendor (brand) logo alongside the vendor name.
+
+  @example
+  {% content_for 'block', type: 'solstice-vendor-badge', id: 'vendor-badge' %}
+{% enddoc %}
+
+{% liquid
+  assign product_resource = closest.product
+  if request.visual_preview_mode and product_resource == blank
+    assign product_resource = collections.all.products.first
+  endif
+
+  if product_resource == blank or product_resource.vendor == blank
+    break
+  endif
+
+  assign vendor = product_resource.vendor
+  assign vendor_handle = vendor | handleize
+  assign vendor_collection = collections[vendor_handle]
+  assign vendor_url = block.settings.vendor_url | default: vendor_collection.url
+%}
+
+{% render 'vendor-badge',
+  vendor: vendor,
+  vendor_url: vendor_url,
+  show_logo: block.settings.show_logo,
+  logo_image: block.settings.logo_image
+%}
+
+{% schema %}
+{
+  "name": "Vendor badge",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_logo",
+      "label": "Show vendor logo",
+      "default": false,
+      "info": "Display a logo image alongside the vendor name"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo_image",
+      "label": "Vendor logo",
+      "info": "Optional brand logo. Overrides the text-only display."
+    },
+    {
+      "type": "url",
+      "id": "vendor_url",
+      "label": "Vendor link",
+      "info": "Link to vendor collection page. Auto-detects from vendor name if left empty."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Vendor badge"
+    }
+  ]
+}
+{% endschema %}

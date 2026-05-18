@@ -1,0 +1,803 @@
+{% doc %}
+  Sealant Calculator renderer.
+
+  @param heading {String} Trigger + modal heading
+  @param subtitle {String} Trigger subtitle
+  @param trigger_label {String} Trigger CTA text
+  @param block_id {String} Unique block ID for aria/labelling
+  @param product_id {String} Product resource ID
+  @param default_volume {Number} Default tube volume in ml
+  @param product {Object} Product resource for variant loop
+  @param block_attributes {String} block.shopify_attributes output
+{% enddoc %}
+
+{% liquid
+  assign heading = heading | default: 'How much do you need?'
+  assign subtitle = subtitle | default: 'Calculate coverage based on joint dimensions'
+  assign trigger_label = trigger_label | default: 'Calculate coverage'
+  assign bid = block_id
+
+  assign i18n_error_variant = 'calculator.sealant.error_select_variant' | t
+  assign i18n_atc_success = 'calculator.sealant.atc_success' | t
+  assign i18n_atc_error = 'calculator.sealant.atc_error' | t
+  assign i18n_unit_singular = 'calculator.sealant.summary_units_singular' | t
+  assign i18n_unit_plural = 'calculator.sealant.summary_units_plural' | t
+  assign i18n_atc_default = 'calculator.sealant.atc_default' | t
+  assign i18n_atc_with_variant = 'calculator.sealant.atc_with_variant' | t
+  assign i18n_result_sealant = 'calculator.sealant.result_sealant' | t
+  assign i18n_result_units = 'calculator.sealant.result_units' | t
+%}
+
+<solstice-sealant-calculator
+  class="sealant-calculator"
+  {{ block_attributes }}
+  data-product-id="{{ product_id }}"
+  data-default-volume="{{ default_volume | default: 310 }}"
+  data-i18n-error-variant="{{ i18n_error_variant | escape }}"
+  data-i18n-atc-success="{{ i18n_atc_success | escape }}"
+  data-i18n-atc-error="{{ i18n_atc_error | escape }}"
+  data-i18n-unit-singular="{{ i18n_unit_singular | escape }}"
+  data-i18n-unit-plural="{{ i18n_unit_plural | escape }}"
+  data-i18n-atc-default="{{ i18n_atc_default | escape }}"
+  data-i18n-atc-with-variant="{{ i18n_atc_with_variant | escape }}"
+  data-i18n-result-sealant="{{ i18n_result_sealant | escape }}"
+  data-i18n-result-units="{{ i18n_result_units | escape }}"
+>
+  <button
+    type="button"
+    class="sealant-calculator__trigger"
+    ref="triggerButton"
+    aria-controls="calculator-modal-{{ bid }}"
+    aria-expanded="false"
+    on:click="/handleOpenModal"
+  >
+    <div class="sealant-calculator__trigger-content">
+      <span class="sealant-calculator__trigger-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+          <polyline points="7.5 4.21 12 6.81 16.5 4.21"/>
+          <polyline points="7.5 19.79 7.5 14.6 3 12"/>
+          <polyline points="21 12 16.5 14.6 16.5 19.79"/>
+          <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+          <line x1="12" y1="22.08" x2="12" y2="12"/>
+        </svg>
+      </span>
+      <div class="sealant-calculator__trigger-text">
+        <span class="sealant-calculator__trigger-heading">{{ heading | escape }}</span>
+        <span class="sealant-calculator__trigger-subtitle">{{ subtitle | escape }}</span>
+      </div>
+      <span class="sealant-calculator__trigger-cta">{{ trigger_label | escape }}</span>
+    </div>
+  </button>
+
+  <dialog
+    id="calculator-modal-{{ bid }}"
+    class="sealant-calculator__modal"
+    ref="modal"
+    aria-labelledby="calculator-modal-title-{{ bid }}"
+  >
+    <div class="sealant-calculator__modal-inner">
+      <div class="sealant-calculator__sidebar-header">
+        <h2 id="calculator-modal-title-{{ bid }}" class="sealant-calculator__modal-title">
+          {{ heading | escape }}
+        </h2>
+        <button
+          type="button"
+          class="sealant-calculator__close"
+          ref="closeButton"
+          aria-label="{{ 'calculator.sealant.close_label' | t }}"
+          data-close-calculator-modal
+          on:click="/handleCloseModal"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="sealant-calculator__presets">
+        <label for="preset-select-{{ bid }}" class="sealant-calculator__label">
+          {{ 'calculator.sealant.preset_label' | t }}
+        </label>
+        <select id="preset-select-{{ bid }}" ref="presetSelect" class="sealant-calculator__select">
+          <option value="">{{ 'calculator.sealant.preset_placeholder' | t }}</option>
+          {% assign preset_keys = 'bath_tub,kitchen_sink,window_frame,expansion_joint,concrete_slab,metal_cladding,roof_flashing,floor_joint,pipe_penetration,general_gap' | split: ',' %}
+          {% for key in preset_keys %}
+            <option value="{{ key }}">{{ 'calculator.sealant.presets.' | append: key | t }}</option>
+          {% endfor %}
+        </select>
+        <p id="preset-description-{{ bid }}" class="sealant-calculator__preset-desc" ref="presetDescription" hidden></p>
+        <div hidden aria-hidden="true">
+          {% for key in preset_keys %}
+            <span data-preset-desc="{{ key }}">{{ 'calculator.sealant.preset_descriptions.' | append: key | t }}</span>
+          {% endfor %}
+        </div>
+      </div>
+
+      <fieldset class="sealant-calculator__dimensions">
+        <legend class="sealant-calculator__fieldset-title">{{ 'calculator.sealant.dimensions_title' | t }}</legend>
+
+        <div class="sealant-calculator__field">
+          <label for="joint-length-{{ bid }}" class="sealant-calculator__label">
+            {{ 'calculator.sealant.length_label' | t }}
+          </label>
+          <input
+            type="number"
+            id="joint-length-{{ bid }}"
+            ref="jointLength"
+            class="sealant-calculator__input"
+            data-input="length"
+            min="0.1"
+            step="0.1"
+            placeholder="{{ 'calculator.sealant.length_placeholder' | t }}"
+            on:input="/handlePreview"
+          >
+        </div>
+
+        <div class="sealant-calculator__field">
+          <label for="joint-width-{{ bid }}" class="sealant-calculator__label">
+            {{ 'calculator.sealant.width_label' | t }}
+          </label>
+          <input
+            type="number"
+            id="joint-width-{{ bid }}"
+            ref="jointWidth"
+            class="sealant-calculator__input"
+            data-input="width"
+            min="1"
+            step="1"
+            placeholder="{{ 'calculator.sealant.width_placeholder' | t }}"
+            on:input="/handlePreview"
+          >
+        </div>
+
+        <div class="sealant-calculator__field">
+          <label for="joint-depth-{{ bid }}" class="sealant-calculator__label">
+            {{ 'calculator.sealant.depth_label' | t }}
+          </label>
+          <input
+            type="number"
+            id="joint-depth-{{ bid }}"
+            ref="jointDepth"
+            class="sealant-calculator__input"
+            data-input="depth"
+            min="1"
+            step="1"
+            placeholder="{{ 'calculator.sealant.depth_placeholder' | t }}"
+            on:input="/handlePreview"
+          >
+        </div>
+      </fieldset>
+
+      <fieldset class="sealant-calculator__unit-size">
+        <legend class="sealant-calculator__fieldset-title">{{ 'calculator.sealant.unit_size_title' | t }}</legend>
+
+        <div class="sealant-calculator__radio-group">
+          <label class="sealant-calculator__radio">
+            <input type="radio" name="unitSize-{{ bid }}" ref="unitSize[]" value="300" checked on:change="/handlePreview">
+            <span>{{ 'calculator.sealant.unit_300ml' | t }}</span>
+          </label>
+          <label class="sealant-calculator__radio">
+            <input type="radio" name="unitSize-{{ bid }}" ref="unitSize[]" value="600" on:change="/handlePreview">
+            <span>{{ 'calculator.sealant.unit_600ml' | t }}</span>
+          </label>
+          <label class="sealant-calculator__radio">
+            <input type="radio" name="unitSize-{{ bid }}" ref="unitSize[]" value="custom" on:change="/handlePreview">
+            <span>{{ 'calculator.sealant.unit_custom' | t }}</span>
+          </label>
+        </div>
+
+        <div class="sealant-calculator__custom-size" ref="customSizeContainer">
+          <label for="custom-unit-size-{{ bid }}" class="sealant-calculator__label">
+            {{ 'calculator.sealant.custom_size_label' | t }}
+          </label>
+          <input
+            type="number"
+            id="custom-unit-size-{{ bid }}"
+            ref="customUnitSize"
+            class="sealant-calculator__input sealant-calculator__input--small"
+            min="1"
+            step="1"
+            placeholder="{{ 'calculator.sealant.custom_size_placeholder' | t }}"
+            disabled
+            on:input="/handlePreview"
+          >
+        </div>
+      </fieldset>
+
+      <div class="sealant-calculator__wastage">
+        <label class="sealant-calculator__toggle">
+          <input type="checkbox" ref="wastageToggle" on:change="/handlePreview">
+          <span class="sealant-calculator__toggle-track">
+            <span class="sealant-calculator__toggle-thumb"></span>
+          </span>
+          <span class="sealant-calculator__toggle-label">
+            {{ 'calculator.sealant.wastage_label' | t }}
+          </span>
+        </label>
+      </div>
+
+      <div class="sealant-calculator__summary" ref="summaryContainer" aria-live="polite">
+        <div class="sealant-calculator__summary-placeholder" ref="summaryPlaceholder">
+          <p>{{ 'calculator.sealant.summary_placeholder' | t }}</p>
+        </div>
+        <div class="sealant-calculator__summary-content" ref="summaryContent" hidden>
+          <div class="sealant-calculator__summary-volume">
+            <span class="sealant-calculator__summary-label">{{ 'calculator.sealant.summary_volume_label' | t }}</span>
+            <span class="sealant-calculator__summary-value" ref="summaryVolume">—</span>
+          </div>
+          <div class="sealant-calculator__summary-units">
+            <span class="sealant-calculator__summary-label">{{ 'calculator.sealant.summary_units_label' | t }}</span>
+            <span class="sealant-calculator__summary-value" ref="summaryUnits">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div
+        id="calculator-error-{{ bid }}"
+        class="sealant-calculator__error"
+        ref="errorContainer"
+        role="alert"
+        aria-live="assertive"
+        hidden
+      >
+        <span ref="errorText"></span>
+      </div>
+
+      <div class="sealant-calculator__results" ref="resultsContainer" hidden>
+        <div class="sealant-calculator__result-line">
+          <span ref="totalSealant"></span>
+        </div>
+        <div class="sealant-calculator__result-line">
+          <span ref="totalUnits"></span>
+        </div>
+
+        <div class="sealant-calculator__variant-select" ref="variantSelectContainer" hidden>
+          <label for="calculator-variant-{{ bid }}" class="sealant-calculator__label">
+            {{ 'calculator.sealant.variant_label' | t }}
+          </label>
+          <select
+            id="calculator-variant-{{ bid }}"
+            ref="calculatorVariantSelect"
+            class="sealant-calculator__select"
+            on:change="/handlePreview"
+          >
+            {% for variant in product.variants %}
+              <option value="{{ variant.id }}" {% if variant == product.selected_or_first_available_variant %}selected{% endif %}>
+                {{ variant.title }} — {{ variant.price | money }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <button
+          type="button"
+          class="sealant-calculator__atc-button button button--primary"
+          ref="addToCartBtn"
+          on:click="/handleAddToCart"
+        >
+          <span class="sealant-calculator__atc-text" ref="atcButtonText">
+            {{ 'calculator.sealant.atc_default' | t }}
+          </span>
+          <span class="sealant-calculator__atc-feedback" ref="atcFeedback" hidden></span>
+        </button>
+      </div>
+    </div>
+  </dialog>
+</solstice-sealant-calculator>
+
+<script src="{{ 'component-sealant-calculator.js' | asset_url }}" type="module"></script>
+
+{% stylesheet %}
+  .sealant-calculator {
+    --calc-radius: var(--style-border-radius-buttons-primary, 8px);
+    --calc-shadow-color: rgb(var(--color-shadow-rgb) / 0.12);
+    --calc-accent: var(--color-primary, rgb(234 31 39));
+    --calc-accent-rgb: var(--color-primary-rgb, 234 31 39);
+    padding-block: var(--padding-md, 16px);
+  }
+
+  .sealant-calculator__trigger {
+    width: 100%;
+    padding: 16px;
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--calc-radius);
+    cursor: pointer;
+    text-align: start;
+    transition: box-shadow 0.2s, border-color 0.2s;
+  }
+
+  .sealant-calculator__trigger:hover {
+    border-color: rgb(var(--color-foreground-rgb) / 0.25);
+    box-shadow: 0 2px 12px var(--calc-shadow-color);
+  }
+
+  .sealant-calculator__trigger-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .sealant-calculator__trigger-icon {
+    flex-shrink: 0;
+    inline-size: 40px;
+    block-size: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgb(var(--calc-accent-rgb) / 0.08);
+    border-radius: 10px;
+    color: var(--calc-accent);
+  }
+
+  .sealant-calculator__trigger-icon svg {
+    inline-size: 22px;
+    block-size: 22px;
+  }
+
+  .sealant-calculator__trigger-text {
+    flex: 1;
+    min-inline-size: 0;
+  }
+
+  .sealant-calculator__trigger-heading {
+    display: block;
+    font-size: var(--font-paragraph-medium--size, 16px);
+    font-weight: var(--font-weight-semibold, 600);
+    color: var(--color-foreground);
+    line-height: 1.3;
+  }
+
+  .sealant-calculator__trigger-subtitle {
+    display: block;
+    font-size: var(--font-paragraph-small--size, 14px);
+    color: rgb(var(--color-foreground-rgb) / 0.55);
+    line-height: 1.4;
+    margin-block-start: 2px;
+  }
+
+  .sealant-calculator__trigger-cta {
+    flex-shrink: 0;
+    font-size: var(--font-paragraph-small--size, 14px);
+    font-weight: var(--font-weight-semibold, 600);
+    color: var(--calc-accent);
+  }
+
+  .sealant-calculator__modal {
+    position: fixed;
+    inset-block-end: 0;
+    inset-inline: 0;
+    inline-size: 100%;
+    max-inline-size: none;
+    max-block-size: 85dvh;
+    background: var(--color-background);
+    overflow-y: auto;
+    border: none;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -8px 40px rgb(0 0 0 / 0.12), 0 0 0 1px rgb(var(--color-border-rgb) / 0.08);
+    padding: 0;
+    margin: 0;
+    color: var(--color-foreground);
+  }
+
+  .sealant-calculator__modal::backdrop {
+    background: rgb(var(--color-shadow-rgb) / 0.4);
+    backdrop-filter: blur(2px);
+  }
+
+  .sealant-calculator__modal[open] {
+    animation: calc-slide-up 0.3s ease-out;
+  }
+
+  .sealant-calculator__modal.calc-closing {
+    animation: calc-slide-down 0.2s ease-in forwards;
+  }
+
+  .sealant-calculator__modal.calc-closing::backdrop {
+    animation: calc-backdrop-fade 0.2s ease-in forwards;
+  }
+
+  @keyframes calc-slide-up {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  @keyframes calc-slide-down {
+    from { transform: translateY(0); }
+    to { transform: translateY(100%); }
+  }
+
+  @keyframes calc-backdrop-fade {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+
+  .sealant-calculator__modal-inner {
+    padding: 20px;
+    padding-block-end: calc(20px + env(safe-area-inset-bottom, 0px));
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .sealant-calculator__sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding-block-end: 20px;
+    border-block-end: 1px solid rgb(var(--color-border-rgb) / 0.5);
+  }
+
+  .sealant-calculator__modal-title {
+    font-size: var(--font-heading--size, 20px);
+    font-weight: var(--font-weight-bold, 700);
+    margin: 0;
+    color: var(--color-foreground);
+  }
+
+  .sealant-calculator__close {
+    flex-shrink: 0;
+    inline-size: 44px;
+    block-size: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-foreground);
+    border-radius: 50%;
+    transition: background 0.15s;
+  }
+
+  .sealant-calculator__close:hover {
+    background: rgb(var(--color-foreground-rgb) / 0.08);
+  }
+
+  .sealant-calculator__close svg {
+    inline-size: 22px;
+    block-size: 22px;
+  }
+
+  .sealant-calculator__presets,
+  .sealant-calculator__wastage {
+    margin: 0;
+  }
+
+  .sealant-calculator__label {
+    display: block;
+    font-size: var(--font-paragraph-small--size, 14px);
+    font-weight: var(--font-weight-medium, 500);
+    color: rgb(var(--color-foreground-rgb) / 0.7);
+    margin-block-end: 6px;
+  }
+
+  .sealant-calculator__fieldset-title {
+    font-size: var(--font-paragraph-small--size, 14px);
+    font-weight: var(--font-weight-semibold, 600);
+    color: var(--color-foreground);
+    margin-block-end: 12px;
+    letter-spacing: 0.02em;
+  }
+
+  .sealant-calculator__input,
+  .sealant-calculator__select {
+    inline-size: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--calc-radius);
+    font-size: var(--font-paragraph--size, 16px);
+    font-family: inherit;
+    min-block-size: 44px;
+    background: var(--color-input-background);
+    color: var(--color-input-text);
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  .sealant-calculator__input:focus,
+  .sealant-calculator__select:focus {
+    outline: none;
+    border-color: var(--calc-accent);
+    box-shadow: 0 0 0 3px rgb(var(--calc-accent-rgb) / 0.12);
+  }
+
+  .sealant-calculator__input.invalid {
+    border-color: rgb(220 38 38);
+    box-shadow: 0 0 0 3px rgb(220 38 38 / 0.08);
+  }
+
+  .sealant-calculator__input--small {
+    inline-size: 140px;
+  }
+
+  .sealant-calculator__select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='2' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: calc(100% - 12px) center;
+    cursor: pointer;
+  }
+
+  .sealant-calculator__dimensions,
+  .sealant-calculator__unit-size {
+    border: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .sealant-calculator__dimensions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .sealant-calculator__field {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sealant-calculator__radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-block-end: 12px;
+  }
+
+  .sealant-calculator__radio {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: var(--font-paragraph--size, 16px);
+    padding: 8px 12px;
+    border: 1px solid transparent;
+    border-radius: var(--calc-radius);
+    transition: background 0.15s, border-color 0.15s;
+  }
+
+  .sealant-calculator__radio:has(input:checked) {
+    background: rgb(var(--calc-accent-rgb) / 0.04);
+    border-color: rgb(var(--calc-accent-rgb) / 0.15);
+  }
+
+  .sealant-calculator__radio input[type="radio"] {
+    inline-size: 18px;
+    block-size: 18px;
+    accent-color: var(--calc-accent);
+    cursor: pointer;
+  }
+
+  .sealant-calculator__custom-size {
+    margin-block-start: 8px;
+    padding-inline-start: 40px;
+  }
+
+  .sealant-calculator__toggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    padding: 12px 16px;
+    background: rgb(var(--color-foreground-rgb) / 0.03);
+    border-radius: var(--calc-radius);
+    transition: background 0.15s;
+  }
+
+  .sealant-calculator__toggle:hover {
+    background: rgb(var(--color-foreground-rgb) / 0.06);
+  }
+
+  .sealant-calculator__toggle input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    inline-size: 0;
+    block-size: 0;
+  }
+
+  .sealant-calculator__toggle-track {
+    position: relative;
+    inline-size: 44px;
+    block-size: 24px;
+    background: rgb(var(--color-foreground-rgb) / 0.15);
+    border-radius: 12px;
+    flex-shrink: 0;
+    transition: background 0.2s;
+  }
+
+  .sealant-calculator__toggle-thumb {
+    position: absolute;
+    inset-block-start: 2px;
+    inset-inline-start: 2px;
+    inline-size: 20px;
+    block-size: 20px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.15);
+  }
+
+  .sealant-calculator__toggle input:checked + .sealant-calculator__toggle-track {
+    background: var(--calc-accent);
+  }
+
+  .sealant-calculator__toggle input:checked + .sealant-calculator__toggle-track .sealant-calculator__toggle-thumb {
+    transform: translateX(20px);
+  }
+
+  .sealant-calculator__toggle-label {
+    font-size: var(--font-paragraph-small--size, 14px);
+    color: var(--color-foreground);
+  }
+
+  .sealant-calculator__summary {
+    padding: 20px;
+    background: rgb(var(--color-foreground-rgb) / 0.03);
+    border: 1px solid rgb(var(--color-border-rgb) / 0.5);
+    border-radius: var(--calc-radius);
+  }
+
+  .sealant-calculator__summary-placeholder p {
+    margin: 0;
+    font-size: var(--font-paragraph-small--size, 14px);
+    color: rgb(var(--color-foreground-rgb) / 0.45);
+    text-align: center;
+  }
+
+  .sealant-calculator__summary-content {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .sealant-calculator__summary-volume,
+  .sealant-calculator__summary-units {
+    text-align: center;
+    flex: 1;
+    padding: 8px;
+  }
+
+  .sealant-calculator__summary-volume {
+    border-inline-end: 1px solid rgb(var(--color-border-rgb) / 0.4);
+  }
+
+  .sealant-calculator__summary-label {
+    display: block;
+    font-size: 11px;
+    font-weight: var(--font-weight-semibold, 600);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: rgb(var(--color-foreground-rgb) / 0.5);
+    margin-block-end: 6px;
+  }
+
+  .sealant-calculator__summary-value {
+    display: block;
+    font-size: 24px;
+    font-weight: var(--font-weight-bold, 700);
+    color: var(--color-foreground);
+    line-height: 1.2;
+  }
+
+  .sealant-calculator__error {
+    padding: 12px 16px;
+    background: rgb(254 242 242);
+    border: 1px solid rgb(252 165 165);
+    border-radius: var(--calc-radius);
+    color: rgb(185 28 28);
+    font-size: var(--font-paragraph-small--size, 14px);
+  }
+
+  .sealant-calculator__results {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-block-start: 20px;
+    border-block-start: 1px solid rgb(var(--color-border-rgb) / 0.5);
+  }
+
+  .sealant-calculator__result-line {
+    font-size: var(--font-paragraph--size, 16px);
+    color: var(--color-foreground);
+  }
+
+  .sealant-calculator__variant-select {
+    margin-block-start: 4px;
+  }
+
+  .sealant-calculator__atc-button {
+    inline-size: 100%;
+    position: relative;
+    min-block-size: 48px;
+  }
+
+  .sealant-calculator__atc-feedback {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--calc-accent);
+    color: white;
+    font-weight: var(--font-weight-semibold, 600);
+    border-radius: var(--calc-radius);
+  }
+
+  .sealant-calculator__preset-desc {
+    margin: 8px 0 0;
+    font-size: var(--font-paragraph-small--size, 14px);
+    color: rgb(var(--color-foreground-rgb) / 0.55);
+    font-style: italic;
+  }
+
+  .sealant-calculator__trigger-cta {
+    display: none;
+  }
+
+  @media screen and (min-width: 750px) {
+    .sealant-calculator__modal {
+      inset-block-end: auto;
+      inset-inline-start: 0;
+      inset-inline-end: 0;
+      margin: auto;
+      inline-size: 520px;
+      max-inline-size: calc(100vw - 32px);
+      max-block-size: calc(100dvh - 64px);
+      border-radius: 16px;
+      box-shadow: 0 24px 64px rgb(0 0 0 / 0.18), 0 8px 20px rgb(0 0 0 / 0.1), 0 0 0 1px rgb(var(--color-border-rgb) / 0.08);
+    }
+
+    .sealant-calculator__modal[open] {
+      animation: calc-scale-in 0.3s ease-out;
+    }
+
+    .sealant-calculator__modal.calc-closing {
+      animation: calc-scale-out 0.2s ease-in forwards;
+    }
+
+    @keyframes calc-scale-in {
+      from { transform: scale(0.96); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes calc-scale-out {
+      from { transform: scale(1); opacity: 1; }
+      to { transform: scale(0.96); opacity: 0; }
+    }
+
+    .sealant-calculator__modal-inner {
+      padding: 28px;
+      gap: 24px;
+    }
+
+    .sealant-calculator__dimensions {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .sealant-calculator__trigger-cta {
+      display: initial;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sealant-calculator__trigger,
+    .sealant-calculator__modal,
+    .sealant-calculator__close,
+    .sealant-calculator__input,
+    .sealant-calculator__select,
+    .sealant-calculator__radio,
+    .sealant-calculator__toggle,
+    .sealant-calculator__toggle-track,
+    .sealant-calculator__toggle-thumb {
+      transition-duration: 0.01ms;
+    }
+
+    .sealant-calculator__modal[open],
+    .sealant-calculator__modal.calc-closing,
+    .sealant-calculator__modal.calc-closing::backdrop {
+      animation-duration: 0.01ms;
+    }
+  }
+{% endstylesheet %}

@@ -1,0 +1,63 @@
+{% doc %}
+  Quote Form
+
+  Inline trade quote request form for product pages.
+
+  @example
+  {% content_for 'block', type: 'solstice-quote-form', id: 'quote-form' %}
+{% enddoc %}
+
+{% liquid
+  assign product_resource = closest.product
+  if request.visual_preview_mode and product_resource == blank
+    assign product_resource = collections.all.products.first
+  endif
+%}
+
+{% render 'quote-form',
+  heading: block.settings.heading,
+  subtitle: block.settings.subtitle,
+  button_label: block.settings.button_label,
+  success_message: block.settings.success_message,
+  product_title: product_resource.title,
+  product_url: product_resource.url,
+  block_id: block.id,
+  block_attributes: block.shopify_attributes
+%}
+
+{% schema %}
+{
+  "name": "Trade quote form",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Need a custom trade quote?"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Tell us what you need and we'll get back to you within 24 hours."
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Submit button label",
+      "default": "Get a quote"
+    },
+    {
+      "type": "text",
+      "id": "success_message",
+      "label": "Success message",
+      "default": "Thanks! We'll be in touch within 24 hours."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Trade quote form"
+    }
+  ]
+}
+{% endschema %}

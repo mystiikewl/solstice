@@ -1,0 +1,78 @@
+{% doc %}
+  TDS Zone
+
+  Displays Technical Data Sheet (TDS) and Safety Data Sheet (SDS) download links.
+
+  @example
+  {% content_for 'block', type: 'solstice-tds-zone', id: 'tds-zone' %}
+{% enddoc %}
+
+{% liquid
+  assign product_resource = closest.product
+  if request.visual_preview_mode and product_resource == blank
+    assign product_resource = collections.all.products.first
+  endif
+
+  if product_resource == blank
+    break
+  endif
+
+  assign tds_url = ''
+  assign sds_url = ''
+
+  if block.settings.use_metafields
+    assign tds_url = product_resource.metafields.custom.tds_url | default: ''
+    assign sds_url = product_resource.metafields.custom.sds_url | default: ''
+  endif
+
+  assign tds_url = block.settings.tds_url | default: tds_url
+  assign sds_url = block.settings.sds_url | default: sds_url
+
+  unless tds_url != blank or sds_url != blank
+    break
+  endunless
+%}
+
+{% render 'tds-zone',
+  heading: block.settings.heading,
+  tds_url: tds_url,
+  sds_url: sds_url
+%}
+
+{% schema %}
+{
+  "name": "TDS documents",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Technical documents"
+    },
+    {
+      "type": "checkbox",
+      "id": "use_metafields",
+      "label": "Use product metafields",
+      "default": true,
+      "info": "Pull TDS/SDS URLs from product metafields (custom.tds_url, custom.sds_url)"
+    },
+    {
+      "type": "url",
+      "id": "tds_url",
+      "label": "TDS link (fallback)",
+      "info": "Used if metafield is empty"
+    },
+    {
+      "type": "url",
+      "id": "sds_url",
+      "label": "SDS link (fallback)",
+      "info": "Used if metafield is empty"
+    }
+  ],
+  "presets": [
+    {
+      "name": "TDS documents"
+    }
+  ]
+}
+{% endschema %}

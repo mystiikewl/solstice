@@ -1,0 +1,52 @@
+{%- if section.blocks.size > 0 -%}
+  <div class="mega-nav__nav-row color-{{ section.settings.color_scheme_nav }}" data-nav-row>
+    <div class="mega-nav__inner{% if section.settings.section_width == 'page-width' %} mega-nav__inner--page-width{% endif %}">
+      <nav class="mega-nav__nav" aria-label="{{ 'accessibility.header_navigation_label' | t }}">
+        <ul class="mega-nav__nav-list">
+          {%- for block in section.blocks -%}
+            {%- assign block_menu = linklists[block.settings.menu] -%}
+            {%- assign block_label = block.settings.label | strip -%}
+            {%- assign block_url = block.settings.url -%}
+            {%- assign has_children = false -%}
+
+            {%- if block_label == blank -%}
+              {%- continue -%}
+            {%- endif -%}
+
+            {%- if block_menu != blank and block_menu.links.size > 0 -%}
+              {%- assign has_children = true -%}
+            {%- endif -%}
+
+            {%- unless has_children or block_url != blank -%}
+              {%- continue -%}
+            {%- endunless -%}
+
+            <li class="mega-nav__nav-item" {{ block.shopify_attributes }}>
+              {%- if has_children -%}
+                <button
+                  type="button"
+                  class="mega-nav__nav-link mega-nav__nav-link--trigger"
+                  aria-expanded="false"
+                  aria-controls="mega-panel-{{ block.id }}"
+                  data-mega-trigger
+                >
+                  {{ block_label | escape }}
+                  <span class="svg-wrapper mega-nav__nav-caret">
+                    {{- 'icon-caret.svg' | inline_asset_content -}}
+                  </span>
+                </button>
+              {%- else -%}
+                <a
+                  href="{{ block_url }}"
+                  class="mega-nav__nav-link mega-nav__nav-link--direct"
+                >
+                  {{ block_label | escape }}
+                </a>
+              {%- endif -%}
+            </li>
+          {%- endfor -%}
+        </ul>
+      </nav>
+    </div>
+  </div>
+{%- endif -%}

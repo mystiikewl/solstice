@@ -1,0 +1,72 @@
+{% doc %}
+  Vendor Badge renderer.
+
+  @param vendor {String} Vendor name (required)
+  @param vendor_url {String} Link URL for vendor
+  @param show_logo {Boolean} Whether to show logo image
+  @param logo_image {Object} Logo image object
+{% enddoc %}
+
+<div class="vendor-badge">
+  {% if vendor_url != blank %}
+    <a href="{{ vendor_url }}" class="vendor-badge__link">
+  {% endif %}
+
+  {% if show_logo and logo_image %}
+    <div class="vendor-badge__logo">
+      <img
+        src="{{ logo_image | image_url: width: 120 }}"
+        alt="{{ vendor | escape }}"
+        loading="lazy"
+        width="60"
+        height="30"
+      >
+    </div>
+  {% endif %}
+
+  <span class="vendor-badge__name">{{ vendor | escape }}</span>
+
+  {% if vendor_url != blank %}
+    </a>
+  {% endif %}
+</div>
+
+{% stylesheet %}
+  .vendor-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--gap-xs, 8px);
+  }
+
+  .vendor-badge__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--gap-xs, 8px);
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .vendor-badge__link:hover {
+    opacity: 0.8;
+  }
+
+  .vendor-badge__logo {
+    display: flex;
+    align-items: center;
+    height: 24px;
+  }
+
+  .vendor-badge__logo img {
+    max-height: 24px;
+    width: auto;
+    object-fit: contain;
+  }
+
+  .vendor-badge__name {
+    font-size: var(--font-paragraph-small--size);
+    font-weight: var(--font-weight-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgb(var(--color-foreground-rgb) / 0.7);
+  }
+{% endstylesheet %}

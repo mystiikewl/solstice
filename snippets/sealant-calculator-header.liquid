@@ -1,0 +1,22 @@
+{% doc %}
+  Sealant Calculator Header
+
+  @param heading {String} Heading
+  @param bid {String} Block ID
+{% enddoc %}
+
+<div class="sealant-calculator-sheet__header">
+  <h2 id="calculator-sheet-title-{{ bid }}" class="sealant-calculator-sheet__title">
+    {{ heading | escape }}
+  </h2>
+  <button
+    type="button"
+    class="sealant-calculator-sheet__close"
+    ref="closeButton"
+    aria-label="{{ 'calculator.sealant.close_label' | t }}"
+    data-close-calculator-sheet
+    on:click="/handleCloseSheet"
+  >
+    <span class="svg-wrapper">{{ 'icon-close.svg' | inline_asset_content }}</span>
+  </button>
+</div>

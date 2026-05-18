@@ -1,0 +1,43 @@
+{% doc %}
+  Sealant Calculator Results
+
+  @param bid {String} Block ID
+  @param product {Object} Product resource
+{% enddoc %}
+
+<div class="sealant-calculator__results" ref="resultsContainer" hidden>
+  <div class="sealant-calculator__result-line">
+    <span ref="totalSealant"></span>
+  </div>
+  <div class="sealant-calculator__result-line">
+    <span ref="totalUnits"></span>
+  </div>
+
+  <div class="sealant-calculator__variant-select" ref="variantSelectContainer">
+    <label for="calculator-variant-{{ bid }}" class="sealant-calculator__label">
+      {{ 'calculator.sealant.variant_label' | t }}
+    </label>
+    <select
+      id="calculator-variant-{{ bid }}"
+      ref="calculatorVariantSelect"
+      class="sealant-calculator__select"
+      on:change="/handlePreview"
+    >
+      {% for variant in product.variants %}
+        <option value="{{ variant.id }}" {% if variant == product.selected_or_first_available_variant %}selected{% endif %}>
+          {{ variant.title }} — {{ variant.price | money }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <button
+    type="button"
+    class="button"
+    ref="addToCartBtn"
+    on:click="/handleAddToCart"
+  >
+    <span ref="atcButtonText">{{ 'calculator.sealant.atc_default' | t }}</span>
+    <span ref="atcFeedback" hidden></span>
+  </button>
+</div>

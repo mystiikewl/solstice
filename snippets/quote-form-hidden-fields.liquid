@@ -1,0 +1,18 @@
+{% doc %}
+  Quote Form Hidden Fields
+
+  @param product_title {String} Product title
+  @param source {String} Source
+  @param is_bulk_discount {Boolean} Is bulk discount
+  @param product_url {String} Product URL
+  @param product {Object} Product object
+{% enddoc %}
+
+<input type="hidden" name="contact[product]" value="{{ product_title | escape }}">
+<input type="hidden" name="contact[source]" value="{{ source }}">
+<input type="hidden" name="contact[submission_source]" value="{{ source }}">
+<input type="hidden" name="contact[form_variant]" value="{% if is_bulk_discount %}bulk-discount{% else %}general-quote{% endif %}">
+<input type="hidden" name="contact[Product Title]" value="{{ product_title | escape }}">
+<input type="hidden" name="contact[Product URL]" value="{{ product_url | escape }}">
+<input type="hidden" name="contact[Variant Title]" value="{{ product.selected_or_first_available_variant.title | escape }}" ref="variantTitleField">
+<input type="hidden" name="contact[Variant ID]" value="{{ product.selected_or_first_available_variant.id }}" ref="variantIdField">

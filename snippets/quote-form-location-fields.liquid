@@ -1,0 +1,15 @@
+{% doc %}
+  Quote Form Location Fields
+
+  @param block_id {String} Block ID
+  @param source {String} Source
+{% enddoc %}
+
+<div class="quote-form__field">
+  <label for="quote-suburb-{{ block_id }}-{{ source }}" class="quote-form__label">{{ 'quote_form.contact.suburb_label' | t }}</label>
+  <input type="text" id="quote-suburb-{{ block_id }}-{{ source }}" name="contact[suburb]" class="quote-form__input" autocomplete="address-level2">
+</div>
+<div class="quote-form__field">
+  <label for="quote-postcode-{{ block_id }}-{{ source }}" class="quote-form__label">{{ 'quote_form.contact.postcode_label' | t }}</label>
+  <input type="text" id="quote-postcode-{{ block_id }}-{{ source }}" name="contact[postcode]" class="quote-form__input" autocomplete="postal-code">
+</div>

@@ -1,0 +1,98 @@
+{% doc %}
+  Quote Form Fields
+
+  Renders the internal fields for the quote form.
+  
+  @param success_message {String} Success message
+  @param product_title {String} Product title
+  @param product_url {String} Product URL
+  @param product {Object} Product object
+  @param is_bulk_discount {Boolean} Is bulk discount
+  @param block_id {String} Block ID
+  @param button_label {String} Submit button label
+  @param class_prefix {String} Prefix for success/error classes
+  @param source {String} Source tracking value
+{% enddoc %}
+
+{%- if form.posted_successfully? -%}
+  <div class="{{ class_prefix }}__success" role="status">
+    <p>{{ success_message | default: 'quote_form.success_message' | t | escape }}</p>
+  </div>
+{%- else -%}
+  {% render 'quote-form-hidden-fields',
+    product_title: product_title,
+    source: source,
+    is_bulk_discount: is_bulk_discount,
+    product_url: product_url,
+    product: product
+  %}
+
+  {%- if form.errors -%}
+    <div class="{{ class_prefix }}__errors" role="alert">
+      <p>{{ form.errors | default_errors }}</p>
+    </div>
+  {%- endif -%}
+
+  <div class="quote-form__fields">
+    {% if is_bulk_discount %}
+      <div class="quote-sheet__bulk-proof" ref="bulkProof">
+        <p class="quote-sheet__bulk-intro">{{ 'quote_form.bulk_proof_intro' | t }}</p>
+        <div class="quote-sheet__bulk-grid">
+          <div class="quote-sheet__bulk-item">
+            <span class="quote-sheet__bulk-label">{{ 'quote_form.single_unit_label' | t }}</span>
+            <span class="quote-sheet__bulk-value" ref="singleUnitPrice">{{ product.selected_or_first_available_variant.price | money }}</span>
+          </div>
+          <div class="quote-sheet__bulk-item">
+            <span class="quote-sheet__bulk-label">{{ 'quote_form.bulk_buy_label' | t }}</span>
+            {%- liquid
+              assign bulk_price = product.selected_or_first_available_variant.price | times: 0.9 | round
+            -%}
+            <span class="quote-sheet__bulk-value" ref="bulkBuyPrice">{{ bulk_price | money }}</span>
+          </div>
+          <div class="quote-sheet__bulk-item">
+            <span class="quote-sheet__bulk-label">{{ 'quote_form.save_label' | t }}</span>
+            {%- liquid
+              assign savings = product.selected_or_first_available_variant.price | minus: bulk_price
+            -%}
+            <span class="quote-sheet__bulk-value quote-sheet__bulk-value--savings" ref="savingsAmount">{{ savings | money }}</span>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="quote-form__field">
+      <label for="quote-quantity-{{ block_id }}-{{ source }}" class="quote-form__label">{{ 'quote_form.quantity_label' | t }}</label>
+      <input type="text" id="quote-quantity-{{ block_id }}-{{ source }}" name="contact[quantity]" class="quote-form__input" required autocomplete="off">
+    </div>
+
+    {% render 'quote-form-contact-fields', block_id: block_id, source: source %}
+
+    {% render 'quote-form-variant-select', product: product, block_id: block_id, source: source %}
+
+    <div class="quote-form__field">
+      <label for="quote-industry-{{ block_id }}-{{ source }}" class="quote-form__label">{{ 'quote_form.industry_label' | t }}</label>
+      <select id="quote-industry-{{ block_id }}-{{ source }}" name="contact[industry]" class="quote-form__input quote-form__select">
+        {% render 'quote-form-industry-options' %}
+      </select>
+    </div>
+
+    {% render 'quote-form-location-fields', block_id: block_id, source: source %}
+
+    <div class="quote-form__field">
+      <label for="quote-followup-{{ block_id }}-{{ source }}" class="quote-form__label">{{ 'quote_form.followup_label' | t }}</label>
+      <select id="quote-followup-{{ block_id }}-{{ source }}" name="contact[follow_up]" class="quote-form__input quote-form__select">
+        <option value="email">{{ 'quote_form.followup_email' | t }}</option>
+        <option value="phone">{{ 'quote_form.followup_phone' | t }}</option>
+      </select>
+    </div>
+
+    <div class="quote-form__field">
+      <label for="quote-notes-{{ block_id }}-{{ source }}" class="quote-form__label">{{ 'quote_form.notes_label' | t }}</label>
+      <textarea id="quote-notes-{{ block_id }}-{{ source }}" name="contact[message]" class="quote-form__input quote-form__textarea" rows="3" placeholder="{{ 'quote_form.notes_placeholder' | t }}"></textarea>
+    </div>
+
+    <div class="quote-form__actions">
+      <button type="submit" class="quote-form__button button">{{ button_label | default: 'quote_form.submit_button' | t }}</button>
+    </div>
+  </div>
+{%- endif -%}

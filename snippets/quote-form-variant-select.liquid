@@ -1,0 +1,28 @@
+{% doc %}
+  Quote Form Variant Select
+
+  @param product {Object} Product object
+  @param block_id {String} Block ID
+  @param source {String} Source
+{% enddoc %}
+
+<div class="quote-form__field">
+  <label for="quote-variant-{{ block_id }}-{{ source }}" class="quote-form__label">{{ 'quote_form.variant_label' | t }}</label>
+  <select
+    id="quote-variant-{{ block_id }}-{{ source }}"
+    name="contact[variant]"
+    class="quote-form__input quote-form__select"
+    ref="quoteVariantSelect"
+  >
+    {% for variant in product.variants %}
+      <option
+        value="{{ variant.id }}"
+        data-variant-title="{{ variant.title | escape }}"
+        data-price="{{ variant.price }}"
+        {% if variant == product.selected_or_first_available_variant %}selected{% endif %}
+      >
+        {{ variant.title }}
+      </option>
+    {% endfor %}
+  </select>
+</div>

@@ -1,51 +1,36 @@
-# Continue — mega nav visual polish
+# Continue — Sealant Calculator Modal Iteration
 
-## Files changed
+## What's done
 
-- `sections/solstice-mega-nav.liquid` — new custom section (replaces upstream Horizon header)
-- `assets/solstice-mega-nav.js` — new custom element `mega-nav-header`
-- `sections/header-group.json` — updated to reference `solstice-mega-nav`
-- `CONTEXT.md` — domain terms and decisions for this feature
-
-## Current state
-
-All core functionality is working:
-- Two-row header (logo+actions top, nav row bottom)
-- Block-based L1 config (`menu_item` blocks with label, URL, optional child menu)
-- Desktop: click L1 opens a single-column dropdown (320px L2 column). L2 items with children cascade to a 260px L3 column on the right via flex layout (no absolute positioning, no horizontal scroll).
-- Mobile: left drawer with accordion L1 + L2 nesting, mutual exclusion at L1 level
-- Focus trap, inert on closed panels, Escape key, outside-click close, resize handler
-- `actions.view_all` translation key (locale has it)
-
-## Last action
-
-Applied visual polish pass:
-- Nav link hover area: added horizontal padding + `border-radius: 4px` (hover no longer bleeds tight to text)
-- Panel: `border-radius: 0 0 8px 8px`, `border-top` spans full width
-- L3 column: subtle tinted background (`--mega-nav-link-hover-bg`) for visual separation
-- L3 links: indented with extra left padding for hierarchy
-- Removed mutable rail classes — replaced by `panel-list-l2` / `panel-list-l3` / `l2-trigger` / `l3-group`
+- Sealant calculator rebuilt from simple inline form to modal dialog (commits `d1b0296`, `58b8687`)
+- All 9 primitives implemented: trigger card, modal shell, presets (10 job types), dimension inputs, unit size selector (300/600/custom), wastage toggle, real-time preview, calculation engine, ATC integration
+- Tag changed from `sealant,coverage-calculator` to `sealant-calculator`
+- Files: `blocks/solstice-sealant-calculator.liquid`, `assets/solstice-sealant-calculator.js`, `locales/en.default.json`, `templates/product.json`
+- All changes committed on `setup/project-foundation` branch
 
 ## Next action
 
-Verify visually on a real store:
-1. `shopify theme dev --store YOUR_STORE` to preview
-2. Check the panel opens below the nav row, L2 column aligns with nav items
-3. Click an L2 with children → L3 cascades right, panel grows to ~580px, L3 has tinted background
-4. Click another L2 → L3 swaps. Click same L2 → L3 closes.
-5. Check nav link hover has rounded corners and doesn't overflow the row
-6. Test mobile drawer at <750px — accordions, close button, overlay
+Load the dev theme (`shopify theme push --store YOUR_STORE` or dev server) and visually test the modal on a product tagged `sealant-calculator`. Iterate on:
+1. Modal sizing, spacing, and visual polish
+2. Mobile responsiveness (bottom sheet vs centered modal)
+3. Animation smoothness (scale+fade transition)
+4. Input field styling and focus states
+5. Preset dropdown behavior
+6. ATC button state transitions
 
-Then confirm `general.view_all` is not referenced anywhere — I changed to `actions.view_all` which exists in `locales/en.default.json`. If missing from other locale files, they'll fall back gracefully to "View all".
+## Why
 
-## Known concerns
+The calculator logic is complete and committed. The modal pattern works structurally but needs visual iteration — spacing, proportions, animation feel, and mobile behavior are all likely to need tweaking once seen on a real page.
 
-- The L3 column width is hardcoded at 260px — might need adjustment for long link text
-- Panel `border-radius` might not render cleanly with `box-shadow` on some browsers — verify visually and remove radius if shadow looks wrong
-- `sections/header-group.json` was changed to reference `solstice-mega-nav` — the diff includes Horizon upstream changes that may conflict on sync
-- The `continue.md` handoff file should be deleted before committing
+## Open threads
+
+- `solstice-vendor-badge` block is built but not wired into `product.json` block_order
+- Phase 2.5 (product documents panel) and Phase 2.6 (description split) are on the roadmap but not started
+- TDS zone still uses legacy `custom.tds_url`/`custom.sds_url` metafields — needs migration to `custom.product_documents`
+- Typography, brand guidelines, and design system validation docs are still stale (Phase 1.1, 1.3, 1.4)
 
 ## Do not
 
-- Do NOT edit upstream Horizon files (`sections/header-group.json` upstream content, `snippets/header.liquid`, etc.)
-- Do NOT rename `solstice-mega-nav` — it's the custom section name used in `header-group.json`
+- Do not change the calculation engine — it's pure and correct
+- Do not change the tag from `sealant-calculator`
+- Do not restructure the Liquid block's data attributes or ref names without updating the JS to match

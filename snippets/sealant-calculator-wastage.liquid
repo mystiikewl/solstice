@@ -1,0 +1,15 @@
+{% doc %}
+  Sealant Calculator Wastage Toggle
+{% enddoc %}
+
+<div class="sealant-calculator__wastage">
+  <label class="sealant-calculator__toggle">
+    <input type="checkbox" ref="wastageToggle" on:change="/handlePreview">
+    <span class="sealant-calculator__toggle-track">
+      <span class="sealant-calculator__toggle-thumb"></span>
+    </span>
+    <span class="sealant-calculator__toggle-label">
+      {{ 'calculator.sealant.wastage_label' | t }}
+    </span>
+  </label>
+</div>

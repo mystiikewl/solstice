@@ -1,0 +1,67 @@
+{% doc %}
+  Quote Form Sheet
+
+  @param block_attributes {String} block.shopify_attributes
+  @param product_title {String} Product title
+  @param product_url {String} Product URL
+  @param is_bulk_discount {Boolean} Is bulk discount
+  @param trigger_heading {String} Heading
+  @param trigger_subtitle {String} Subtitle
+  @param trigger_button_label {String} Button label
+  @param block_id {String} Block ID
+  @param form {Object} Form object
+  @param success_message {String} Success message
+  @param product {Object} Product object
+  @param button_label {String} Submit button label
+{% enddoc %}
+
+<solstice-quote-sheet
+  class="quote-sheet"
+  {{ block_attributes }}
+  data-product-title="{{ product_title | escape }}"
+  data-product-url="{{ product_url }}"
+  data-bulk-quote-form
+  data-bulk-quote-source="product-quote-sheet"
+  data-bulk-quote-variant="{% if is_bulk_discount %}bulk-discount{% else %}general-quote{% endif %}"
+>
+  {% render 'quote-form-trigger',
+    trigger_heading: trigger_heading,
+    trigger_subtitle: trigger_subtitle,
+    trigger_button_label: trigger_button_label,
+    block_id: block_id
+  %}
+
+  <dialog
+    id="quote-sheet-dialog-{{ block_id }}"
+    class="quote-sheet__dialog"
+    ref="sheet"
+    aria-labelledby="quote-sheet-title-{{ block_id }}"
+    role="dialog"
+    aria-modal="true"
+  >
+    <div class="quote-sheet__panel">
+      {% render 'quote-form-sheet-header',
+        trigger_heading: trigger_heading,
+        trigger_subtitle: trigger_subtitle,
+        block_id: block_id
+      %}
+
+      <solstice-quote-form class="quote-form quote-sheet__body" id="quote-form-{{ block_id }}">
+        {%- form 'contact' -%}
+          {% render 'quote-form-fields',
+            form: form,
+            success_message: success_message,
+            product_title: product_title,
+            product_url: product_url,
+            product: product,
+            is_bulk_discount: is_bulk_discount,
+            block_id: block_id,
+            button_label: button_label,
+            class_prefix: 'quote-sheet',
+            source: 'product-quote-sheet'
+          %}
+        {%- endform -%}
+      </solstice-quote-form>
+    </div>
+  </dialog>
+</solstice-quote-sheet>

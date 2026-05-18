@@ -1,0 +1,41 @@
+{% doc %}
+  Sealant Calculator Unit Size
+
+  @param bid {String} Block ID
+{% enddoc %}
+
+<fieldset class="sealant-calculator__unit-size">
+  <legend class="sealant-calculator__fieldset-title">{{ 'calculator.sealant.unit_size_title' | t }}</legend>
+
+  <div class="sealant-calculator__radio-group">
+    <label class="sealant-calculator__radio">
+      <input type="radio" name="unitSize-{{ bid }}" ref="unitSize[]" value="300" checked on:change="/handlePreview">
+      <span>{{ 'calculator.sealant.unit_300ml' | t }}</span>
+    </label>
+    <label class="sealant-calculator__radio">
+      <input type="radio" name="unitSize-{{ bid }}" ref="unitSize[]" value="600" on:change="/handlePreview">
+      <span>{{ 'calculator.sealant.unit_600ml' | t }}</span>
+    </label>
+    <label class="sealant-calculator__radio">
+      <input type="radio" name="unitSize-{{ bid }}" ref="unitSize[]" value="custom" on:change="/handlePreview">
+      <span>{{ 'calculator.sealant.unit_custom' | t }}</span>
+    </label>
+  </div>
+
+  <div class="sealant-calculator__custom-size" ref="customSizeContainer">
+    <label for="custom-unit-size-{{ bid }}" class="sealant-calculator__label">
+      {{ 'calculator.sealant.custom_size_label' | t }}
+    </label>
+    <input
+      type="number"
+      id="custom-unit-size-{{ bid }}"
+      ref="customUnitSize"
+      class="sealant-calculator__input sealant-calculator__input--small"
+      min="1"
+      step="1"
+      placeholder="{{ 'calculator.sealant.custom_size_placeholder' | t }}"
+      disabled
+      on:input="/handlePreview"
+    >
+  </div>
+</fieldset>

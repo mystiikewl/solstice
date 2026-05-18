@@ -1,0 +1,43 @@
+{% doc %}
+  Quote Form Inline
+
+  @param block_attributes {String} block.shopify_attributes
+  @param product_title {String} Product title
+  @param product_url {String} Product URL
+  @param is_bulk_discount {Boolean} Is bulk discount
+  @param trigger_heading {String} Heading
+  @param trigger_subtitle {String} Subtitle
+  @param form {Object} Form object
+  @param success_message {String} Success message
+  @param product {Object} Product object
+  @param block_id {String} Block ID
+  @param button_label {String} Button label
+{% enddoc %}
+
+<solstice-quote-form
+  class="quote-form"
+  {{ block_attributes }}
+  data-product-title="{{ product_title | escape }}"
+  data-product-url="{{ product_url | escape }}"
+  data-bulk-quote-form
+  data-bulk-quote-source="product-quote-inline"
+  data-bulk-quote-variant="{% if is_bulk_discount %}bulk-discount{% else %}general-quote{% endif %}"
+>
+  <h3 class="quote-form__heading">{{ trigger_heading | escape }}</h3>
+  <p class="quote-form__subtitle">{{ trigger_subtitle | escape }}</p>
+
+  {%- form 'contact' -%}
+    {% render 'quote-form-fields',
+      form: form,
+      success_message: success_message,
+      product_title: product_title,
+      product_url: product_url,
+      product: product,
+      is_bulk_discount: is_bulk_discount,
+      block_id: block_id,
+      button_label: button_label,
+      class_prefix: 'quote-form',
+      source: 'product-quote-inline'
+    %}
+  {%- endform -%}
+</solstice-quote-form>

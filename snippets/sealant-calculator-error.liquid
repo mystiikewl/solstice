@@ -1,0 +1,16 @@
+{% doc %}
+  Sealant Calculator Error Container
+
+  @param bid {String} Block ID
+{% enddoc %}
+
+<div
+  id="calculator-error-{{ bid }}"
+  class="sealant-calculator__error"
+  ref="errorContainer"
+  role="alert"
+  aria-live="assertive"
+  hidden
+>
+  <span ref="errorText"></span>
+</div>

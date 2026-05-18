@@ -1,0 +1,23 @@
+{% doc %}
+  Quote Form Contact Fields
+
+  @param block_id {String} Block ID
+  @param source {String} Source
+{% enddoc %}
+
+<div class="quote-form__field">
+  <label for="quote-name-{{ block_id }}-{{ source }}" class="quote-form__label">{{ 'quote_form.contact.name_label' | t }}</label>
+  <input type="text" id="quote-name-{{ block_id }}-{{ source }}" name="contact[name]" class="quote-form__input" required autocomplete="name">
+</div>
+<div class="quote-form__field">
+  <label for="quote-email-{{ block_id }}-{{ source }}" class="quote-form__label">{{ 'quote_form.contact.email_label' | t }}</label>
+  <input type="email" id="quote-email-{{ block_id }}-{{ source }}" name="contact[email]" class="quote-form__input" required autocomplete="email">
+</div>
+<div class="quote-form__field">
+  <label for="quote-phone-{{ block_id }}-{{ source }}" class="quote-form__label">{{ 'quote_form.contact.phone_label' | t }}</label>
+  <input type="tel" id="quote-phone-{{ block_id }}-{{ source }}" name="contact[phone]" class="quote-form__input" autocomplete="tel">
+</div>
+<div class="quote-form__field">
+  <label for="quote-company-{{ block_id }}-{{ source }}" class="quote-form__label">{{ 'quote_form.contact.company_label' | t }}</label>
+  <input type="text" id="quote-company-{{ block_id }}-{{ source }}" name="contact[company]" class="quote-form__input" autocomplete="organization">
+</div>

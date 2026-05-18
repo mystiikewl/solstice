@@ -77,15 +77,18 @@ Custom theme blocks added to the upstream `product-information` section. All con
 ### `solstice-quote-form` (Trade quote request)
 
 - File: `blocks/solstice-quote-form.liquid`
-- JS: `assets/solstice-quote-form.js`
-- Purpose: 2-step inline quote form (Qty/Name/Email then Phone/Company/Industry/Suburb/Notes).
-- Custom element: `<solstice-quote-form>` extends `Component`.
+- JS: `assets/component-quote-sheet.js`, `assets/component-quote-form.js`
+- Purpose: compact trigger that opens a quote sheet (desktop right sheet, mobile bottom sheet) with 2-step form flow.
+- Custom elements: `<solstice-quote-sheet>` and nested `<solstice-quote-form>` extend `Component`.
 - DOM contract:
+  - Trigger: `[ref="triggerButton"]`, `aria-controls`, `aria-expanded`.
+  - Sheet dialog: `[ref="sheet"]`, `[data-close-bulk-quote-sidebar]`.
   - Step containers: `[data-step="1"]` and `[data-step="2"]`.
   - Navigation: `[data-next-step]` and `[data-prev-step]` buttons.
-  - Validates required fields before advancing.
+  - Metadata/analytics attributes: `data-bulk-quote-form`, `data-bulk-quote-source`, `data-bulk-quote-variant`.
 - Submits via Shopify `{% form 'contact' %}`.
-- Settings: `heading`, `subtitle`, `button_label`, `success_message`.
+- Variant behavior: renders bulk variant when product has `bulk-discount` tag; otherwise renders general quote variant.
+- Settings: `enable_sheet`, `heading`, `subtitle`, `trigger_label`, `button_label`, `success_message`, `bulk_heading`, `bulk_subtitle`, `bulk_trigger_label`.
 
 ### `solstice-tds-zone` (Technical document downloads)
 

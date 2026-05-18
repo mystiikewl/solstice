@@ -184,3 +184,4 @@ async handleCloseModal() {
 - [Six JavaScript component lifecycle bugs](../runtime-errors/six-js-component-lifecycle-bugs-2026-05-18.md) — the code review that identified the original P0/P1 bugs and prompted this simplification pass
 - `ce-simplify-code` skill — the workflow that produced these improvements
 - Shopify Horizon OS3 architecture — custom element conventions for the Solstice theme
+- [Bulk quote sheet component architecture](../best-practices/bulk-quote-sheet-component-architecture-2026-05-18.md) — applies simplification patterns (shared helpers, unified state) to a trigger-to-sheet refactor with bidirectional variant sync

@@ -1,176 +1,64 @@
 {% doc %}
-  Quote Form renderer.
-
-  @param heading {String} Form heading
-  @param subtitle {String} Form subtitle
-  @param button_label {String} Submit button label
-  @param success_message {String} Success message
-  @param product_title {String} Product title
-  @param product_url {String} Product URL
-  @param block_id {String} Unique block ID
-  @param block_attributes {String} block.shopify_attributes output
+  Quote sheet orchestrator.
 {% enddoc %}
 
-<solstice-quote-form
-  class="quote-form"
-  {{ block_attributes }}
-  data-product-title="{{ product_title | escape }}"
-  data-product-url="{{ product_url }}"
->
-  <h3 class="quote-form__heading">{{ heading | escape }}</h3>
-  <p class="quote-form__subtitle">{{ subtitle | escape }}</p>
+{% liquid
+  assign is_bulk_discount = false
+  if product != blank and product.tags contains 'bulk-discount'
+    assign is_bulk_discount = true
+  endif
 
-  <div class="quote-form__body" id="quote-form-{{ block_id }}">
-    {%- form 'contact' -%}
-      {%- if form.posted_successfully? -%}
-        <div class="quote-form__success" role="status">
-          <p>{{ success_message | escape }}</p>
-        </div>
-      {%- else -%}
-        <input type="hidden" name="contact[product]" value="{{ product_title | escape }}">
-        <input type="hidden" name="contact[source]" value="product-quote-form">
+  assign trigger_heading = heading
+  assign trigger_subtitle = subtitle
+  assign trigger_button_label = trigger_label
 
-        {%- if form.errors -%}
-          <div class="quote-form__errors" role="alert">
-            <p>{{ form.errors | default_errors }}</p>
-          </div>
-        {%- endif -%}
+  if is_bulk_discount
+    assign trigger_heading = bulk_heading
+    assign trigger_subtitle = bulk_subtitle
+    assign trigger_button_label = bulk_trigger_label
+  endif
 
-        <div class="quote-form__step" data-step="1">
-          <div class="quote-form__field">
-            <label for="quote-quantity-{{ block_id }}" class="quote-form__label">Quantity needed</label>
-            <input type="text" id="quote-quantity-{{ block_id }}" name="contact[quantity]" class="quote-form__input" placeholder="e.g. 50 tubes, 5 boxes" required autocomplete="off">
-          </div>
-          <div class="quote-form__field">
-            <label for="quote-name-{{ block_id }}" class="quote-form__label">Name</label>
-            <input type="text" id="quote-name-{{ block_id }}" name="contact[name]" class="quote-form__input" required autocomplete="name">
-          </div>
-          <div class="quote-form__field">
-            <label for="quote-email-{{ block_id }}" class="quote-form__label">Email</label>
-            <input type="email" id="quote-email-{{ block_id }}" name="contact[email]" class="quote-form__input" required autocomplete="email">
-          </div>
-          <button type="button" class="quote-form__button button" data-next-step>Next</button>
-        </div>
+  assign trigger_heading = trigger_heading | default: heading
+  assign trigger_subtitle = trigger_subtitle | default: subtitle
+  assign trigger_button_label = trigger_button_label | default: 'Get trade pricing'
+  assign enable_sheet = enable_sheet | default: true
+%}
 
-        <div class="quote-form__step" data-step="2" hidden>
-          <div class="quote-form__field">
-            <label for="quote-phone-{{ block_id }}" class="quote-form__label">Phone</label>
-            <input type="tel" id="quote-phone-{{ block_id }}" name="contact[phone]" class="quote-form__input" autocomplete="tel">
-          </div>
-          <div class="quote-form__field">
-            <label for="quote-company-{{ block_id }}" class="quote-form__label">Company</label>
-            <input type="text" id="quote-company-{{ block_id }}" name="contact[company]" class="quote-form__input" autocomplete="organization">
-          </div>
-          <div class="quote-form__field">
-            <label for="quote-industry-{{ block_id }}" class="quote-form__label">Industry</label>
-            <select id="quote-industry-{{ block_id }}" name="contact[industry]" class="quote-form__input quote-form__select">
-              <option value="">Select your industry</option>
-              <option value="tiling">Tiling</option>
-              <option value="waterproofing">Waterproofing</option>
-              <option value="building">Building & Construction</option>
-              <option value="plumbing">Plumbing</option>
-              <option value="glazing">Glazing</option>
-              <option value="auto-glass">Auto Glass</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-          <div class="quote-form__field">
-            <label for="quote-suburb-{{ block_id }}" class="quote-form__label">Suburb / Location</label>
-            <input type="text" id="quote-suburb-{{ block_id }}" name="contact[suburb]" class="quote-form__input" autocomplete="address-level2">
-          </div>
-          <div class="quote-form__field">
-            <label for="quote-notes-{{ block_id }}" class="quote-form__label">Project notes</label>
-            <textarea id="quote-notes-{{ block_id }}" name="contact[notes]" class="quote-form__input quote-form__textarea" rows="3" placeholder="Any details about your project or requirements"></textarea>
-          </div>
-          <div class="quote-form__actions">
-            <button type="button" class="quote-form__button-back button button--secondary" data-prev-step>Back</button>
-            <button type="submit" class="quote-form__button button">{{ button_label | escape }}</button>
-          </div>
-        </div>
-      {%- endif -%}
-    {%- endform -%}
-  </div>
-</solstice-quote-form>
+{{ 'component-quote-sheet.css' | asset_url | stylesheet_tag }}
+
+{% if enable_sheet %}
+  {% render 'quote-form-sheet',
+    block_attributes: block_attributes,
+    product_title: product_title,
+    product_url: product_url,
+    is_bulk_discount: is_bulk_discount,
+    trigger_heading: trigger_heading,
+    trigger_subtitle: trigger_subtitle,
+    trigger_button_label: trigger_button_label,
+    block_id: block_id,
+    form: form,
+    success_message: success_message,
+    product: product,
+    button_label: button_label
+  %}
+{% else %}
+  {% render 'quote-form-inline',
+    block_attributes: block_attributes,
+    product_title: product_title,
+    product_url: product_url,
+    is_bulk_discount: is_bulk_discount,
+    trigger_heading: trigger_heading,
+    trigger_subtitle: trigger_subtitle,
+    form: form,
+    success_message: success_message,
+    product: product,
+    block_id: block_id,
+    button_label: button_label
+  %}
+{% endif %}
+
+{% if enable_sheet %}
+  <script src="{{ 'component-quote-sheet.js' | asset_url }}" type="module"></script>
+{% endif %}
 
 <script src="{{ 'component-quote-form.js' | asset_url }}" type="module"></script>
-
-{% stylesheet %}
-  .quote-form {
-    padding-block: var(--padding-lg, 24px);
-  }
-
-  .quote-form__heading {
-    font-size: var(--font-paragraph-large--size, 1.125rem);
-    font-weight: var(--font-weight-semibold);
-    margin-block-end: var(--gap-xs, 4px);
-  }
-
-  .quote-form__subtitle {
-    font-size: var(--font-paragraph-small--size);
-    color: rgb(var(--color-foreground-rgb) / 0.7);
-    margin-block-end: var(--padding-md, 16px);
-  }
-
-  .quote-form__field {
-    margin-block-end: var(--padding-sm, 12px);
-  }
-
-  .quote-form__label {
-    display: block;
-    font-size: var(--font-paragraph-small--size);
-    font-weight: var(--font-weight-medium);
-    margin-block-end: var(--gap-xs, 4px);
-  }
-
-  .quote-form__input {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid rgb(var(--color-foreground-rgb) / 0.2);
-    border-radius: var(--style-border-radius-buttons-primary, 4px);
-    font-size: var(--font-paragraph--size);
-    font-family: inherit;
-    min-block-size: 44px;
-    background: rgb(var(--color-background));
-    color: rgb(var(--color-foreground));
-  }
-
-  .quote-form__textarea {
-    resize: vertical;
-    min-block-size: 80px;
-  }
-
-  .quote-form__select {
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23444' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    padding-inline-end: 32px;
-  }
-
-  .quote-form__actions {
-    display: flex;
-    gap: var(--gap-sm, 12px);
-    margin-block-start: var(--padding-sm, 12px);
-  }
-
-  .quote-form__button-back {
-    background: transparent;
-    border: 1px solid rgb(var(--color-foreground-rgb) / 0.2);
-    color: rgb(var(--color-foreground));
-  }
-
-  .quote-form__success {
-    padding: var(--padding-md, 16px);
-    background: rgb(var(--color-accent) / 0.05);
-    border-radius: var(--style-border-radius-buttons-primary, 4px);
-    font-weight: var(--font-weight-medium);
-  }
-
-  .quote-form__errors {
-    padding: var(--padding-sm, 12px);
-    background: rgb(220 38 38 / 0.05);
-    border-radius: var(--style-border-radius-buttons-primary, 4px);
-    color: rgb(220 38 38);
-    margin-block-end: var(--padding-sm, 12px);
-  }
-{% endstylesheet %}

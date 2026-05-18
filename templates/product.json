@@ -212,6 +212,7 @@
                 }
               },
               "block_order": [
+                "text_vendor",
                 "vendor_badge",
                 "text_title",
                 "sku_block",

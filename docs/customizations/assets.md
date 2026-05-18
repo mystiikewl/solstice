@@ -33,10 +33,17 @@
 - Focus management: imports `trapFocus`/`removeTrapFocus` from `@theme/focus`. Traps focus in modal on open, releases on close. Escape key closes modal.
 - Key selectors: `[ref="modal"]`, `[ref="triggerButton"]`, `[data-close-calculator-modal]`, `[ref="jointLength|Width|Depth"]`, `[ref="presetSelect"]`, `[ref="unitSize[]"]`, `[ref="wastageToggle"]`, `[ref="addToCartBtn"]`.
 
-## `solstice-quote-form.js` (2-step quote form controller)
+## `component-quote-sheet.js` (quote trigger + sheet controller)
 
-- File: `assets/solstice-quote-form.js` (loaded by `blocks/solstice-quote-form.liquid` as a module)
-- Custom element: `SolsticeQuoteForm extends Component` for `<solstice-quote-form>`.
-- Responsibilities: manages 2-step progressive disclosure. Step 1 has required fields (qty, name, email). Step 2 has optional fields (phone, company, industry, suburb, notes).
+- File: `assets/component-quote-sheet.js` (loaded by `snippets/quote-form.liquid` as a module)
+- Custom element: `QuoteSheet extends Component` for `<solstice-quote-sheet>`.
+- Responsibilities: opens/closes quote sheet, handles outside-click + Escape dismissal, restores focus to trigger, pushes quote view/start events.
+- Key selectors: `[ref="triggerButton"]`, `[ref="sheet"]`, `[ref="closeButton"]`.
+
+## `component-quote-form.js` (2-step quote form controller)
+
+- File: `assets/component-quote-form.js` (loaded by `snippets/quote-form.liquid` as a module)
+- Custom element: `QuoteForm extends Component` for `<solstice-quote-form>`.
+- Responsibilities: manages 2-step progressive disclosure inside the sheet, validates step 1 before advance, and keeps step-2 disabled while collapsed.
 - Validates Step 1 required fields via native `checkValidity()` before advancing.
-- Key selectors: `[data-step="1"]`, `[data-step="2"]`, `[data-next-step]`, `[data-prev-step]`.
+- Key selectors: `[data-step="1"]`, `[data-step="2"]`, `[data-next-step]`, `[data-prev-step]`, `[data-quote-variant-title]`.

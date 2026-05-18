@@ -1,0 +1,341 @@
+{
+  "reviewer": "project-standards",
+  "findings": [
+    {
+      "title": "God snippet: sealant-calculator.liquid at 803 lines exceeds ~80 line guardrail",
+      "severity": "P0",
+      "file": "snippets/sealant-calculator.liquid",
+      "line": 1,
+      "confidence": 100,
+      "autofix_class": "manual",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "pre_existing": false,
+      "suggested_fix": "Run horizon-architect to produce a decomposition plan. Split into orchestrator + sub-snippets: trigger button, modal shell, presets section, dimensions form, unit-size form, wastage toggle, summary area, results/ATC section. Each snippet under ~80 lines with its own {% stylesheet %}."
+    },
+    {
+      "title": "Swiss-army element: component-sealant-calculator.js at 304 lines exceeds ~150 line guardrail",
+      "severity": "P0",
+      "file": "assets/component-sealant-calculator.js",
+      "line": 1,
+      "confidence": 100,
+      "autofix_class": "manual",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "pre_existing": false,
+      "suggested_fix": "Split into focused custom elements: one for modal management (open/close/animations), one for form preview/calculation, one for add-to-cart flow. Each under ~150 lines."
+    },
+    {
+      "title": "JS custom element: component-buy-mode-toggle.js at 193 lines exceeds ~150 line guardrail",
+      "severity": "P0",
+      "file": "assets/component-buy-mode-toggle.js",
+      "line": 1,
+      "confidence": 100,
+      "autofix_class": "manual",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "pre_existing": false,
+      "suggested_fix": "Extract savings calculation logic (#calculateSavings, #updateSavingsDisplay) into a separate utility module or focused element. Keep toggle management under ~150 lines."
+    },
+    {
+      "title": "Snippet: buy-mode-toggle.liquid at 169 lines exceeds ~80 line guardrail",
+      "severity": "P0",
+      "file": "snippets/buy-mode-toggle.liquid",
+      "line": 1,
+      "confidence": 100,
+      "autofix_class": "manual",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "pre_existing": false,
+      "suggested_fix": "Split into orchestrator + sub-snippets: options renderer (buttons loop) and savings badge. Each under ~80 lines with own {% stylesheet %}."
+    },
+    {
+      "title": "Snippet: quote-form.liquid at 176 lines exceeds ~80 line guardrail",
+      "severity": "P0",
+      "file": "snippets/quote-form.liquid",
+      "line": 1,
+      "confidence": 100,
+      "autofix_class": "manual",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "pre_existing": false,
+      "suggested_fix": "Split into orchestrator + sub-snippets: step-1 fields, step-2 fields, success/error states. Each under ~80 lines with own {% stylesheet %}."
+    },
+    {
+      "title": "Snippet: solstice-mega-nav-mobile-tree.liquid at 221 lines exceeds ~80 line guardrail",
+      "severity": "P0",
+      "file": "snippets/solstice-mega-nav-mobile-tree.liquid",
+      "line": 1,
+      "confidence": 100,
+      "autofix_class": "manual",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "pre_existing": false,
+      "suggested_fix": "Decompose into recursive panel renderer snippet + root-level orchestrator. Each panel level rendered by a shared snippet parameterized by depth."
+    },
+    {
+      "title": "Snippet: solstice-mega-nav-accordion-drawer.liquid at 170 lines exceeds ~80 line guardrail",
+      "severity": "P0",
+      "file": "snippets/solstice-mega-nav-accordion-drawer.liquid",
+      "line": 1,
+      "confidence": 100,
+      "autofix_class": "manual",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "pre_existing": false,
+      "suggested_fix": "Extract accordion panel rendering into a reusable recursive snippet. Drawer shell stays under ~80 lines."
+    },
+    {
+      "title": "Snippet: solstice-mega-nav-mega-panels.liquid at 119 lines exceeds ~80 line guardrail",
+      "severity": "P0",
+      "file": "snippets/solstice-mega-nav-mega-panels.liquid",
+      "line": 1,
+      "confidence": 100,
+      "autofix_class": "manual",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "pre_existing": false,
+      "suggested_fix": "Split L2, L3, L4 panel areas into separate snippets. Each under ~80 lines."
+    },
+    {
+      "title": "Snippet: trust-badges.liquid at 107 lines exceeds ~80 line guardrail",
+      "severity": "P0",
+      "file": "snippets/trust-badges.liquid",
+      "line": 1,
+      "confidence": 100,
+      "autofix_class": "manual",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "pre_existing": false,
+      "suggested_fix": "Extract individual badge rendering into a shared snippet (trust-badges-badge.liquid) that takes icon, text, and link params. Grid orchestrator stays under ~80 lines."
+    },
+    {
+      "title": "Bug: undeclared variable 'observer' instead of 'this.#observer'",
+      "severity": "P0",
+      "file": "assets/component-sealant-calculator.js",
+      "line": 94,
+      "confidence": 100,
+      "autofix_class": "safe_auto",
+      "owner": "review-fixer",
+      "requires_verification": true,
+      "pre_existing": false,
+      "suggested_fix": "Change line 94 from 'observer.observe' to 'this.#observer.observe'. This references an undeclared variable and will throw a ReferenceError at runtime."
+    },
+    {
+      "title": "Hardcoded English strings in trust-badges.liquid violate locale-key requirement",
+      "severity": "P1",
+      "file": "snippets/trust-badges.liquid",
+      "line": 22,
+      "confidence": 100,
+      "autofix_class": "safe_auto",
+      "owner": "review-fixer",
+      "requires_verification": false,
+      "pre_existing": false,
+      "suggested_fix": "Replace hardcoded defaults ('30+', 'years in the trade', 'store locations', 'Australian owned & operated', 'Call us', '(07) 3356 0000') with locale keys using the | t filter. Phone number should be a block setting, not a hardcoded default."
+    },
+    {
+      "title": "Hardcoded English strings in tds-zone.liquid violate locale-key requirement",
+      "severity": "P1",
+      "file": "snippets/tds-zone.liquid",
+      "line": 16,
+      "confidence": 100,
+      "autofix_class": "safe_auto",
+      "owner": "review-fixer",
+      "requires_verification": false,
+      "pre_existing": false,
+      "suggested_fix": "Replace 'Technical Data Sheet (TDS)' and 'Safety Data Sheet (SDS)' with locale keys using the | t filter."
+    },
+    {
+      "title": "Hardcoded English strings in quote-form.liquid violate locale-key requirement",
+      "severity": "P1",
+      "file": "snippets/quote-form.liquid",
+      "line": 42,
+      "confidence": 100,
+      "autofix_class": "safe_auto",
+      "owner": "review-fixer",
+      "requires_verification": false,
+      "pre_existing": false,
+      "suggested_fix": "Replace all hardcoded labels ('Quantity needed', 'Name', 'Email', 'Phone', 'Company', 'Industry', 'Select your industry', industry options, 'Suburb / Location', 'Project notes', placeholder text) with locale keys using the | t filter."
+    },
+    {
+      "title": "Magic numbers in sealant-calculator.liquid CSS violate theme-token requirement",
+      "severity": "P1",
+      "file": "snippets/sealant-calculator.liquid",
+      "line": 303,
+      "confidence": 75,
+      "autofix_class": "gated_auto",
+      "owner": "review-fixer",
+      "requires_verification": false,
+      "pre_existing": false,
+      "suggested_fix": "Replace bare pixel values (16px, 12px, 20px, 28px, 22px, 40px, 44px, 520px, 64px, 10px, 8px, 6px, 11px, 24px, 140px) with theme token var() references. Some var() calls already exist but many values are bare."
+    },
+    {
+      "title": "Magic numbers in quote-form.liquid CSS violate theme-token requirement",
+      "severity": "P1",
+      "file": "snippets/quote-form.liquid",
+      "line": 127,
+      "confidence": 75,
+      "autofix_class": "gated_auto",
+      "owner": "review-fixer",
+      "requires_verification": false,
+      "pre_existing": false,
+      "suggested_fix": "Replace '10px 12px' padding and '32px' background-position with theme token var() references."
+    },
+    {
+      "title": "Magic numbers in vendor-badge.liquid CSS violate theme-token requirement",
+      "severity": "P1",
+      "file": "snippets/vendor-badge.liquid",
+      "line": 56,
+      "confidence": 75,
+      "autofix_class": "gated_auto",
+      "owner": "review-fixer",
+      "requires_verification": false,
+      "pre_existing": false,
+      "suggested_fix": "Replace 'height: 24px' and 'max-height: 24px' with theme token var() references."
+    },
+    {
+      "title": "Missing {% doc %} blocks in solstice-mega-nav snippets",
+      "severity": "P1",
+      "file": "snippets/solstice-mega-nav-top-row.liquid",
+      "line": 1,
+      "confidence": 100,
+      "autofix_class": "safe_auto",
+      "owner": "review-fixer",
+      "requires_verification": false,
+      "pre_existing": false,
+      "suggested_fix": "Add {% doc %} blocks with @param documentation to all five solstice-mega-nav-*.liquid snippets (top-row, mobile-tree, accordion-drawer, mega-panels, desktop-nav)."
+    },
+    {
+      "title": "Missing {% stylesheet %} blocks in solstice-mega-nav snippets",
+      "severity": "P1",
+      "file": "snippets/solstice-mega-nav-top-row.liquid",
+      "line": 1,
+      "confidence": 75,
+      "autofix_class": "gated_auto",
+      "owner": "review-fixer",
+      "requires_verification": false,
+      "pre_existing": false,
+      "suggested_fix": "Add {% stylesheet %} blocks to all five solstice-mega-nav-*.liquid snippets. If styles are shared, consider a single upstream stylesheet — but the standard requires scoped stylesheets per snippet."
+    },
+    {
+      "title": "Hardcoded phone number in trust-badges.liquid",
+      "severity": "P1",
+      "file": "snippets/trust-badges.liquid",
+      "line": 46,
+      "confidence": 100,
+      "autofix_class": "safe_auto",
+      "owner": "review-fixer",
+      "requires_verification": false,
+      "pre_existing": false,
+      "suggested_fix": "Move '(07) 3356 0000' to a block setting with a sensible empty default, or use a locale key. Hardcoded phone numbers break reusability."
+    },
+    {
+      "title": "Hardcoded industry dropdown options in quote-form.liquid",
+      "severity": "P2",
+      "file": "snippets/quote-form.liquid",
+      "line": 67,
+      "confidence": 75,
+      "autofix_class": "gated_auto",
+      "owner": "review-fixer",
+      "requires_verification": false,
+      "pre_existing": false,
+      "suggested_fix": "Move industry options to locale keys or a block setting array so they can be translated and customized without editing the snippet."
+    },
+    {
+      "title": "No architecture plan found for new components before implementation",
+      "severity": "P1",
+      "file": "blocks/solstice-buy-mode-toggle.liquid",
+      "line": 1,
+      "confidence": 50,
+      "autofix_class": "advisory",
+      "owner": "human",
+      "requires_verification": false,
+      "pre_existing": false,
+      "suggested_fix": "horizon-build requires an architecture plan at docs/features/[component-name]-architecture.md before coding. Verify plans exist for: buy-mode-toggle, quote-form, sealant-calculator, tds-zone, trust-badges, vendor-badge, solstice-mega-nav. If missing, run horizon-architect retroactively to document the decomposition decisions."
+    },
+    {
+      "title": "Upstream file modification: snippets/scripts.liquid modified without upstream-safety verification",
+      "severity": "P1",
+      "file": "snippets/scripts.liquid",
+      "line": 29,
+      "confidence": 50,
+      "autofix_class": "advisory",
+      "owner": "human",
+      "requires_verification": true,
+      "pre_existing": false,
+      "suggested_fix": "Check .upstream-baseline.json to confirm scripts.liquid is listed as a custom file. If not, run horizon-upstream-guard before merging. Log the change in docs/customizations/upstream-sync-log.md with rationale and diff anchors."
+    },
+    {
+      "title": "Upstream file modification: templates/product.json heavily modified (+500/-100) without upstream-safety verification",
+      "severity": "P1",
+      "file": "templates/product.json",
+      "line": 1,
+      "confidence": 50,
+      "autofix_class": "advisory",
+      "owner": "human",
+      "requires_verification": true,
+      "pre_existing": false,
+      "suggested_fix": "Check .upstream-baseline.json to confirm product.json is listed as a custom file. If not, run horizon-upstream-guard. The large diff (+500/-100) suggests significant restructuring — document rationale in upstream-sync-log.md."
+    },
+    {
+      "title": "No customization registry entry in docs/customizations/* for new components",
+      "severity": "P1",
+      "file": "blocks/solstice-sealant-calculator.liquid",
+      "line": 1,
+      "confidence": 50,
+      "autofix_class": "advisory",
+      "owner": "human",
+      "requires_verification": false,
+      "pre_existing": false,
+      "suggested_fix": "horizon-build requires updating docs/customizations/* ledgers with entries for each new component. Add registry entries for: buy-mode-toggle, quote-form, sealant-calculator, tds-zone, trust-badges, vendor-badge, solstice-mega-nav."
+    }
+  ],
+  "residual_risks": [
+    {
+      "risk": "Sealant calculator JS accesses product data via DOM query to product-form-component (line 287-289). If the product form element structure changes upstream, this breaks silently.",
+      "mitigation": "Add a defensive null check and consider using a custom event for product data sharing instead of DOM scraping."
+    },
+    {
+      "risk": "Quote form uses Shopify's contact form ({% form 'contact' %}) with hardcoded field names. If the store's contact form configuration changes, field mapping may break.",
+      "mitigation": "Document the expected contact form fields and add a validation comment."
+    },
+    {
+      "risk": "Buy mode toggle uses global querySelector for variant-picker (line 18), which may match the wrong picker on pages with multiple products.",
+      "mitigation": "Scope the selector to the component's shadow DOM or use a more specific selector tied to the component instance."
+    },
+    {
+      "risk": "Mega nav snippets access section.blocks and section.settings directly, creating tight coupling to section schema. If the section is rendered from a different context, these references break.",
+      "mitigation": "Pass blocks and settings as explicit render parameters rather than relying on section scope."
+    },
+    {
+      "risk": "The sealant-calculator snippet uses on:click and on:input event handlers (Horizon's custom event syntax). If this syntax is deprecated or behaves differently across Horizon versions, interactivity breaks.",
+      "mitigation": "Verify on:* syntax is supported in Horizon v3.4.0 and document the dependency."
+    }
+  ],
+  "testing_gaps": [
+    {
+      "gap": "No shopify theme check validation evidence provided. CLAUDE.md requires 'Test all changes with shopify theme check before pushing'.",
+      "recommendation": "Run 'npx shopify theme check --path . --fail-level error' and include output in the PR."
+    },
+    {
+      "gap": "No Shopify MCP validate_theme evidence provided. horizon-build step 10 requires validation.",
+      "recommendation": "Run validate_theme against all changed Liquid files and include results."
+    },
+    {
+      "gap": "No schema build verification. horizon-build step 9 requires 'npm run build:schemas' if section/block schema changed.",
+      "recommendation": "Run 'npm run build:schemas' and verify no errors, since multiple new blocks with schemas were added."
+    },
+    {
+      "gap": "No browser testing evidence for interactive components (buy-mode-toggle, quote-form, sealant-calculator, mega-nav).",
+      "recommendation": "Test all interactive components in a dev store with shopify theme dev. Verify: toggle syncs with variant picker, quote form validates and submits, calculator modal opens/closes with animations, mega nav panels expand/collapse on mobile and desktop."
+    },
+    {
+      "gap": "No accessibility testing for new components. Several components use ARIA attributes but haven't been verified with screen readers.",
+      "recommendation": "Test with axe DevTools or similar. Verify: radiogroup role on buy-mode-toggle, dialog role on calculator modal, aria-expanded states on mega nav triggers, focus management on modal open/close."
+    },
+    {
+      "gap": "No upstream sync conflict testing. The large product.json change (+500/-100) will likely conflict with future Horizon updates.",
+      "recommendation": "Test merge with latest upstream/main to identify and document conflict areas before they become painful."
+    }
+  ]
+}

@@ -108,7 +108,7 @@ this.#variantPicker?.removeEventListener('change', this.#boundVariantChangeHandl
 
 ### Bug 3: Implicit global event in Firefox (P0)
 
-**File**: `assets/component-sealant-calculator.js:70`
+**File**: `assets/component-sealant-calculator.js:70` (original file before decomposition — see note below)
 
 **Before**:
 ```js
@@ -188,7 +188,7 @@ disconnectedCallback() {
 
 ### Bug 6: setTimeout leak in SealantCalculator (P1)
 
-**File**: `assets/component-sealant-calculator.js:174`
+**File**: `assets/component-sealant-calculator.js:174` (original file before decomposition — see note below)
 
 **Before**:
 ```js
@@ -216,6 +216,15 @@ if (this.#atcTimerId) {
   this.#atcTimerId = null;
 }
 ```
+
+### Postscript: Bugs 3 & 6 re-verified during sheet decomposition
+
+The `solstice-sealant-calculator` was later decomposed into a sheet + form pattern (see [sealant calculator sheet decomposition](../architecture-patterns/sealant-calculator-sheet-decomposition-2026-05-18.md)), which split the monolithic component into `solstice-sealant-calculator-sheet` (82 lines, dialog lifecycle) and `solstice-sealant-calculator` (299 lines, pure form logic). During this refactor, Bugs 3 and 6 were re-verified:
+
+- **Bug 3 (Firefox event)**: The `#handleRadioChange` method now explicitly takes `event` as a parameter (`assets/component-sealant-calculator.js:70`). ✅ Still fixed.
+- **Bug 6 (setTimeout leak)**: The `#atcTimerId` field is declared and cleared in `disconnectedCallback`. The setTimeout in `handleAddToCart` includes an `isConnected` guard (`assets/component-sealant-calculator.js:145`). ✅ Still fixed.
+
+The file's internal structure changed during decomposition — these line numbers differ from the original monolithic version.
 
 ## Why This Works
 
@@ -256,3 +265,5 @@ if (this.#atcTimerId) {
 - Original Phase 2 plan: `docs/plans/2026-05-18-001-feat-product-page-phase2-plan.md` (mandated the cleanup that these bugs reveal was incomplete)
 - Asset customization docs: `docs/customizations/assets.md` (documents the three custom elements)
 - Section customization docs: `docs/customizations/sections.md` (documents block-level DOM contracts)
+- [Bulk quote sheet component architecture for Horizon themes](../best-practices/bulk-quote-sheet-component-architecture-2026-05-18.md) — applies these lifecycle patterns to a trigger-to-sheet refactor with bidirectional variant sync
+- [Sealant calculator sheet decomposition](../architecture-patterns/sealant-calculator-sheet-decomposition-2026-05-18.md) — decomposed the monolithic calculator following the sheet+form pattern; Bugs 3 & 6 re-verified as still fixed

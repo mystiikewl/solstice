@@ -1,0 +1,54 @@
+Based on your data for the last 28 days (April 19 – May 16, 2026), here is the analysis of your visitor behavior and where the drop-offs are occurring.
+1. Where do visitors exit?
+
+    Homepage: The most frequent exit point is the homepage (628 exits), which is expected as it is also your top landing page. However, it has a healthy bounce rate of approximately 26%.
+    Product Pages: Specific variants of Sikaflex Pro are the next highest exit points. Notably, these product pages have much higher bounce rates, ranging from 44% to 61%. This indicates that a majority of users landing on these pages leave without interacting further.
+    Collections: The Sika collection page (`/collections/sika`) is the third most common exit area (122 exits).
+
+Top Page path + query string by Exits, Bounce rate
+Apr 19–May 16, 2026
+Page path + query string
+	Exits
+	Bounce rate
+/ 	628 	25.9%
+/products/sikaflex-pro-cartridges?variant=39327780536512&country=AU&currency=AUD 	265 	57.9%
+/products/sikaflex-pro-cartridges?variant=39327780798656&country=AU&currency=AUD 	223 	60.6%
+/products/sikaflex-pro-cartridges?variant=39327780995264&country=AU&currency=AUD 	161 	43.6%
+/collections/sika 	122 	30.2%
+/products/adheseal-s-100-kitchen-bathroom-silicone 	113 	34.1%
+/products/dowsil-795-silicone-building-sealant 	112 	53.3%
+/products/dow-corning-888 	108 	49.3%
+/pages/stafford 	105 	26.5%
+/products/sika-pro-600ml-sausages 	104 	29.5%
+2. What is the approximate conversion rate?
+
+    Your purchase conversion rate is 0.93% (122 purchases from 13,070 sessions).
+    The broader "Session key event rate" (which may include add-to-carts or other goals) is 2.04%.
+
+Sessions, E-commerce purchases, Session key event rate
+Apr 19–May 16, 2026
+Sessions
+13k
+E-commerce purchases
+122
+Session key event rate
+2.0%
+3. What are the top landing pages?
+
+    The homepage is your primary entry point (1,412 sessions).
+    Product pages for Sikaflex Pro cartridges are the top specific product entries, combined accounting for over 660 sessions.
+    This confirms that while the homepage is the biggest surface, your Sikaflex product pages are the "front door" for a significant portion of your search or direct traffic.
+
+4. Device Split: Mobile vs. Desktop
+
+    Desktop: 59.6% (7,849 sessions)
+    Mobile: 39.5% (5,197 sessions)
+    Tablet: ~0.9% (120 sessions)
+
+While there is a significant mobile presence (likely the "tradies on-site"), 6 out of 10 sessions are still occurring on desktop. This suggests that while mobile optimization is critical for on-site lookups, many orders or detailed research sessions might be happening in an office or home environment.
+Top Device category by Sessions
+Apr 19–May 16, 2026
+desktopmobiletabletsmart tv02k4k6k8k
+
+Strategic Summary:
+Your hypothesis about the product page being a "v1 most important surface" is backed by the data, specifically the high 60% bounce rate on Sikaflex product entries. Visitors are finding the products through search but a large portion are exiting immediately. Prioritizing trust signals, authority (technical data sheets, certifications), and clear variant selection on these Sikaflex pages could directly address the highest drop-off points in your funnel.

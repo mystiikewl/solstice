@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "analytics": {
+      "command": "uvx",
+      "args": [
+        "analytics-mcp"
+      ],
+      "env": {
+        "GOOGLE_PROJECT_ID": "project-f11509ef-b62b-4826-994"
+      }
+    }
+  }
+}

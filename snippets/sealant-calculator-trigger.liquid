@@ -1,0 +1,44 @@
+{% doc %}
+  Sealant Calculator Trigger
+
+  @param heading {String} Heading
+  @param subtitle {String} Subtitle
+  @param trigger_label {String} CTA label
+  @param bid {String} Unique block ID
+{% enddoc %}
+
+{%- liquid
+  assign calc_heading = heading | default: 'Calculate your exact requirements'
+  assign calc_subtitle = subtitle | default: 'Stop guessing. Get the right number of sausages for the job before you start.'
+  assign calc_cta_label = trigger_label | default: 'Open calculator'
+-%}
+
+<button
+  type="button"
+  class="sealant-calculator-sheet__trigger"
+  ref="triggerButton"
+  aria-controls="calculator-sheet-dialog-{{ bid }}"
+  aria-expanded="false"
+  on:click="/handleOpenSheet"
+>
+  <div class="sealant-calculator-sheet__trigger-content">
+    <span class="sealant-calculator-sheet__trigger-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="4" y="2" width="16" height="20" rx="2"/>
+        <line x1="8" y1="6" x2="16" y2="6"/>
+        <line x1="8" y1="10" x2="16" y2="10"/>
+        <line x1="8" y1="14" x2="8" y2="14"/>
+        <line x1="12" y1="14" x2="12" y2="14"/>
+        <line x1="16" y1="14" x2="16" y2="14"/>
+        <line x1="8" y1="18" x2="8" y2="18"/>
+        <line x1="12" y1="18" x2="12" y2="18"/>
+        <line x1="16" y1="18" x2="16" y2="18"/>
+      </svg>
+    </span>
+    <div class="sealant-calculator-sheet__trigger-text">
+      <span class="sealant-calculator-sheet__trigger-heading">{{ calc_heading | escape }}</span>
+      <span class="sealant-calculator-sheet__trigger-subtitle">{{ calc_subtitle | escape }}</span>
+    </div>
+    <span class="sealant-calculator-sheet__trigger-cta">{{ calc_cta_label | escape }}</span>
+  </div>
+</button>

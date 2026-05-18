@@ -1,0 +1,36 @@
+{% doc %}
+  Quote Form Trigger
+
+  @param trigger_heading {String} Trigger heading
+  @param trigger_subtitle {String} Trigger subtitle
+  @param trigger_button_label {String} Trigger button label
+  @param block_id {String} Unique block ID
+{% enddoc %}
+
+{%- liquid
+  assign heading = trigger_heading | default: 'Trade pricing available'
+  assign subtitle = trigger_subtitle | default: 'Submit your requirements to get our best project rate.'
+  assign cta_label = trigger_button_label | default: 'Get a quote'
+-%}
+
+<button
+  type="button"
+  class="quote-sheet__trigger"
+  ref="triggerButton"
+  aria-controls="quote-sheet-dialog-{{ block_id }}"
+  aria-expanded="false"
+  on:click="/handleOpenSheet"
+>
+  <div class="quote-sheet__trigger-content">
+    <span class="quote-sheet__trigger-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+    </span>
+    <div class="quote-sheet__trigger-text">
+      <span class="quote-sheet__trigger-heading">{{ heading | escape }}</span>
+      <span class="quote-sheet__trigger-subtitle">{{ subtitle | escape }}</span>
+    </div>
+    <span class="quote-sheet__trigger-cta">{{ cta_label | escape }}</span>
+  </div>
+</button>

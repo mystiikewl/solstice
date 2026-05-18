@@ -1,15 +1,13 @@
 import { Component } from '@theme/component';
 import { ThemeEvents } from '@theme/events';
-import { isClickedOutside, onAnimationEnd } from '@theme/utilities';
 import { PRESETS } from '@theme/sealant-calculator-presets';
 
 class SealantCalculator extends Component {
   #defaultVolume = 310;
   #lastResult = null;
   #product = null;
-  #modalClickHandler = null;
-  #modalCancelHandler = null;
   #atcTimerId = null;
+  #handleDialogClose = null;
 
   static calculate(lengthM, widthMm, depthMm, unitSizeMl, includeWastage) {
     let volumeMl = lengthM * 1000 * widthMm * depthMm * 0.001;
@@ -25,17 +23,21 @@ class SealantCalculator extends Component {
     super.connectedCallback();
     this.#defaultVolume = Number(this.dataset.defaultVolume) || 310;
     this.#setupListeners();
+
+    const dialog = this.closest('dialog');
+    if (dialog) {
+      this.#handleDialogClose = () => {
+        if (this.isConnected) this.#resetForm();
+      };
+      dialog.addEventListener('close', this.#handleDialogClose);
+    }
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
-    const { modal, presetSelect, customUnitSize } = this.refs;
+    const { presetSelect, customUnitSize } = this.refs;
     presetSelect?.removeEventListener('change', this.#handlePresetChangeBound);
     customUnitSize?.removeEventListener('input', this.#handlePreviewBound);
-    if (modal) {
-      modal.removeEventListener('click', this.#modalClickHandler);
-      modal.removeEventListener('cancel', this.#modalCancelHandler);
-    }
     for (const radio of this.refs.unitSize ?? []) {
       radio.removeEventListener('change', this.#handleRadioChangeBound);
     }
@@ -43,10 +45,15 @@ class SealantCalculator extends Component {
       clearTimeout(this.#atcTimerId);
       this.#atcTimerId = null;
     }
+    if (this.#handleDialogClose) {
+      const dialog = this.closest('dialog');
+      dialog?.removeEventListener('close', this.#handleDialogClose);
+      this.#handleDialogClose = null;
+    }
   }
 
   #setupListeners() {
-    const { presetSelect, customUnitSize, unitSize, modal } = this.refs;
+    const { presetSelect, customUnitSize, unitSize } = this.refs;
 
     this.#handlePresetChangeBound = (e) => this.handlePresetChange(e);
     this.#handlePreviewBound = () => this.handlePreview();
@@ -58,17 +65,6 @@ class SealantCalculator extends Component {
     for (const radio of unitSize ?? []) {
       radio.addEventListener('change', this.#handleRadioChangeBound);
     }
-
-    this.#modalClickHandler = (e) => {
-      if (isClickedOutside(e, modal)) this.handleCloseModal();
-    };
-    this.#modalCancelHandler = (e) => {
-      e.preventDefault();
-      this.handleCloseModal();
-    };
-
-    modal?.addEventListener('click', this.#modalClickHandler);
-    modal?.addEventListener('cancel', this.#modalCancelHandler);
   }
 
   #handleRadioChange(event) {
@@ -78,34 +74,6 @@ class SealantCalculator extends Component {
       this.refs.customUnitSize.disabled = !isCustom;
       if (isCustom) this.refs.customUnitSize.focus();
     }
-  }
-
-  handleOpenModal() {
-    const { modal, triggerButton } = this.refs;
-    if (!modal || modal.open) return;
-    modal.showModal();
-    triggerButton?.setAttribute('aria-expanded', 'true');
-    this.refs.closeButton?.focus();
-  }
-
-  async handleCloseModal() {
-    const { modal, triggerButton } = this.refs;
-    if (!modal?.open) return;
-
-    modal.style.animation = 'none';
-    void modal.offsetWidth;
-    modal.classList.add('calc-closing');
-    modal.style.animation = '';
-
-    await onAnimationEnd(modal, undefined, { subtree: false });
-
-    if (!this.isConnected) return;
-
-    modal.classList.remove('calc-closing');
-    modal.close();
-    triggerButton?.setAttribute('aria-expanded', 'false');
-    this.#resetForm();
-    triggerButton?.focus();
   }
 
   handlePreview() {
@@ -143,10 +111,6 @@ class SealantCalculator extends Component {
     });
 
     this.#updateAtcButtonText(result.unitsRequired);
-
-    if (this.product?.variants?.length > 1) {
-      this.refs.variantSelectContainer?.removeAttribute('hidden');
-    }
   }
 
   async handleAddToCart() {
@@ -180,8 +144,7 @@ class SealantCalculator extends Component {
 
       this.#atcTimerId = setTimeout(() => {
         if (!this.isConnected) return;
-        feedback.setAttribute('hidden', '');
-        this.handleCloseModal();
+        this.#resetAfterAtc();
       }, 1500);
     } catch (err) {
       this.#showError(err.message);
@@ -223,6 +186,7 @@ class SealantCalculator extends Component {
   #getSelectedVariantId() {
     const select = this.refs.calculatorVariantSelect;
     if (select?.value) return select.value;
+    if (select?.options.length) return select.options[0].value;
     return this.product?.selected_or_first_available_variant?.id ?? null;
   }
 
@@ -265,8 +229,7 @@ class SealantCalculator extends Component {
   #resetForm() {
     const { jointLength, jointWidth, jointDepth, customUnitSize, wastageToggle,
             presetSelect, presetDescription, summaryPlaceholder, summaryContent,
-            resultsContainer, variantSelectContainer, errorContainer, atcFeedback,
-            unitSize } = this.refs;
+            resultsContainer, errorContainer, atcFeedback, unitSize } = this.refs;
 
     if (jointLength) jointLength.value = '';
     if (jointWidth) jointWidth.value = '';
@@ -278,7 +241,6 @@ class SealantCalculator extends Component {
     summaryPlaceholder?.removeAttribute('hidden');
     summaryContent?.setAttribute('hidden', '');
     resultsContainer?.setAttribute('hidden', '');
-    variantSelectContainer?.setAttribute('hidden', '');
     errorContainer?.setAttribute('hidden', '');
     atcFeedback?.setAttribute('hidden', '');
     this.#lastResult = null;
@@ -286,6 +248,31 @@ class SealantCalculator extends Component {
     for (const radio of unitSize ?? []) {
       radio.checked = radio.value === '300';
     }
+  }
+
+  #resetAfterAtc() {
+    const { addToCartBtn: btn, atcFeedback: feedback, atcButtonText: text,
+            jointLength, jointWidth, jointDepth, customUnitSize, wastageToggle,
+            presetSelect, presetDescription, summaryPlaceholder, summaryContent,
+            resultsContainer, errorContainer } = this.refs;
+
+    btn.disabled = false;
+    btn.removeAttribute('aria-busy');
+    feedback?.setAttribute('hidden', '');
+    if (text) text.textContent = this.#getI18n('atc_default');
+
+    if (jointLength) jointLength.value = '';
+    if (jointWidth) jointWidth.value = '';
+    if (jointDepth) jointDepth.value = '';
+    if (customUnitSize) { customUnitSize.value = ''; customUnitSize.disabled = true; }
+    if (wastageToggle) wastageToggle.checked = false;
+    if (presetSelect) presetSelect.value = '';
+    presetDescription?.setAttribute('hidden', '');
+    summaryPlaceholder?.removeAttribute('hidden');
+    summaryContent?.setAttribute('hidden', '');
+    resultsContainer?.setAttribute('hidden', '');
+    errorContainer?.setAttribute('hidden', '');
+    this.#lastResult = null;
   }
 
   get product() {

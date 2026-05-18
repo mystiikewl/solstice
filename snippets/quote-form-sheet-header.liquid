@@ -1,0 +1,24 @@
+{% doc %}
+  Quote Form Sheet Header
+
+  @param trigger_heading {String} Heading
+  @param trigger_subtitle {String} Subtitle
+  @param block_id {String} Unique block ID
+{% enddoc %}
+
+<div class="quote-sheet__header">
+  <div class="quote-sheet__title-wrap">
+    <h3 id="quote-sheet-title-{{ block_id }}" class="quote-sheet__title">{{ trigger_heading | escape }}</h3>
+    <p class="quote-sheet__subtitle">{{ trigger_subtitle | escape }}</p>
+  </div>
+  <button
+    type="button"
+    class="quote-sheet__close"
+    ref="closeButton"
+    aria-label="{{ 'accessibility.close_dialog' | t }}"
+    data-close-bulk-quote-sidebar
+    on:click="/handleCloseSheet"
+  >
+    <span class="svg-wrapper">{{ 'icon-close.svg' | inline_asset_content }}</span>
+  </button>
+</div>

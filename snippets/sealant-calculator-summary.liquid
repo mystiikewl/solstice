@@ -1,0 +1,19 @@
+{% doc %}
+  Sealant Calculator Summary
+{% enddoc %}
+
+<div class="sealant-calculator__summary" ref="summaryContainer" aria-live="polite">
+  <div class="sealant-calculator__summary-placeholder" ref="summaryPlaceholder">
+    <p>{{ 'calculator.sealant.summary_placeholder' | t }}</p>
+  </div>
+  <div class="sealant-calculator__summary-content" ref="summaryContent" hidden>
+    <div class="sealant-calculator__summary-volume">
+      <span class="sealant-calculator__summary-label">{{ 'calculator.sealant.summary_volume_label' | t }}</span>
+      <span class="sealant-calculator__summary-value" ref="summaryVolume">—</span>
+    </div>
+    <div class="sealant-calculator__summary-units">
+      <span class="sealant-calculator__summary-label">{{ 'calculator.sealant.summary_units_label' | t }}</span>
+      <span class="sealant-calculator__summary-value" ref="summaryUnits">—</span>
+    </div>
+  </div>
+</div>

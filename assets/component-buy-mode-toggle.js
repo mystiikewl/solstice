@@ -63,22 +63,14 @@ class BuyModeToggle extends Component {
    * @param {HTMLElement} activeButton
    */
   #setActive(activeButton) {
-    this.#options.forEach((option) => {
-      option.removeAttribute('data-active');
-      option.setAttribute('aria-checked', 'false');
-    });
-
-    activeButton.setAttribute('data-active', '');
-    activeButton.setAttribute('aria-checked', 'true');
+    this.#setActiveByValue(activeButton.dataset.value?.toLowerCase());
   }
 
   /**
    * @param {string} value
    */
   #selectVariantOption(value) {
-    if (!this.#variantPicker) return;
-
-    const fieldset = this.#variantPicker.querySelectorAll('fieldset')[this.#optionIndex];
+    const fieldset = this.#getFieldset();
     if (!fieldset) return;
 
     const input = fieldset.querySelector(`input[value="${CSS.escape(value)}"]`);
@@ -99,19 +91,24 @@ class BuyModeToggle extends Component {
     this.#syncWithPicker();
   }
 
-  #syncWithPicker() {
-    if (!this.#variantPicker) return;
+  #getFieldset() {
+    return this.#variantPicker?.querySelectorAll('fieldset')[this.#optionIndex];
+  }
 
-    const fieldset = this.#variantPicker.querySelectorAll('fieldset')[this.#optionIndex];
+  #syncWithPicker() {
+    const fieldset = this.#getFieldset();
     if (!fieldset) return;
 
     const checkedInput = fieldset.querySelector('input:checked');
     if (!checkedInput) return;
 
-    const currentValue = checkedInput.value.toLowerCase();
+    this.#setActiveByValue(checkedInput.value.toLowerCase());
+  }
+
+  #setActiveByValue(value) {
     this.#options.forEach((option) => {
       const optionValue = option.dataset.value?.toLowerCase();
-      if (optionValue === currentValue) {
+      if (optionValue === value) {
         option.setAttribute('data-active', '');
         option.setAttribute('aria-checked', 'true');
       } else {

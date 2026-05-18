@@ -71,7 +71,6 @@ class SealantCalculator extends Component {
     modal?.addEventListener('cancel', this.#modalCancelHandler);
   }
 
-  #handleRadioChangeBound = null;
   #handleRadioChange(event) {
     const radio = event.currentTarget;
     const isCustom = radio.value === 'custom' && radio.checked;
@@ -89,7 +88,7 @@ class SealantCalculator extends Component {
     this.refs.closeButton?.focus();
   }
 
-  handleCloseModal = async () => {
+  async handleCloseModal() {
     const { modal, triggerButton } = this.refs;
     if (!modal?.open) return;
 
@@ -100,12 +99,14 @@ class SealantCalculator extends Component {
 
     await onAnimationEnd(modal, undefined, { subtree: false });
 
+    if (!this.isConnected) return;
+
     modal.classList.remove('calc-closing');
     modal.close();
     triggerButton?.setAttribute('aria-expanded', 'false');
     this.#resetForm();
     triggerButton?.focus();
-  };
+  }
 
   handlePreview() {
     this.#clearError();

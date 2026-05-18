@@ -19,8 +19,11 @@ class BuyModeToggle extends Component {
     this.#savingsBadge = this.querySelector('[data-savings-badge]');
     this.#savingsText = this.querySelector('[data-savings-text]');
 
+    this.#boundHandlers = new Map();
     this.#options.forEach((option) => {
-      option.addEventListener('click', this.#handleToggle.bind(this));
+      const handler = this.#handleToggle.bind(this);
+      this.#boundHandlers.set(option, handler);
+      option.addEventListener('click', handler);
     });
 
     this.#listenForVariantChanges();
@@ -30,8 +33,10 @@ class BuyModeToggle extends Component {
   disconnectedCallback() {
     super.disconnectedCallback();
     this.#options.forEach((option) => {
-      option.removeEventListener('click', this.#handleToggle);
+      const handler = this.#boundHandlers?.get(option);
+      if (handler) option.removeEventListener('click', handler);
     });
+    this.#observer?.disconnect();
   }
 
   /**
@@ -81,7 +86,7 @@ class BuyModeToggle extends Component {
   #listenForVariantChanges() {
     if (!this.#variantPicker) return;
 
-    const observer = new MutationObserver(() => {
+    this.#observer = new MutationObserver(() => {
       this.#syncWithPicker();
       this.#updateSavingsDisplay();
     });
@@ -179,6 +184,10 @@ class BuyModeToggle extends Component {
   #savingsPerUnit = 0;
   /** @type {number} */
   #savingsPercent = 0;
+  /** @type {Map<HTMLElement, Function>} */
+  #boundHandlers = null;
+  /** @type {MutationObserver | null} */
+  #observer = null;
 }
 
 customElements.define('solstice-buy-mode-toggle', BuyModeToggle);

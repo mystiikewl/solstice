@@ -1,0 +1,24 @@
+{% doc %}
+  Sealant Calculator Presets
+
+  @param bid {String} Block ID
+{% enddoc %}
+
+<div class="sealant-calculator__presets">
+  <label for="preset-select-{{ bid }}" class="sealant-calculator__label">
+    {{ 'calculator.sealant.preset_label' | t }}
+  </label>
+  <select id="preset-select-{{ bid }}" ref="presetSelect" class="sealant-calculator__select">
+    <option value="">{{ 'calculator.sealant.preset_placeholder' | t }}</option>
+    {% assign preset_keys = 'bath_tub,kitchen_sink,window_frame,expansion_joint,concrete_slab,metal_cladding,roof_flashing,floor_joint,pipe_penetration,roofing,wall_tile,shower_base,rain_gutter,plumbing_connection,general_gap' | split: ',' %}
+    {% for key in preset_keys %}
+      <option value="{{ key }}">{{ 'calculator.sealant.presets.' | append: key | t }}</option>
+    {% endfor %}
+  </select>
+  <p id="preset-description-{{ bid }}" class="sealant-calculator__preset-desc" ref="presetDescription" hidden></p>
+  <div hidden aria-hidden="true">
+    {% for key in preset_keys %}
+      <span data-preset-desc="{{ key }}">{{ 'calculator.sealant.preset_descriptions.' | append: key | t }}</span>
+    {% endfor %}
+  </div>
+</div>

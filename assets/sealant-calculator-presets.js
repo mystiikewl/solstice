@@ -1,0 +1,17 @@
+export const PRESETS = {
+  bath_tub: { width: 6, depth: 3 },
+  kitchen_sink: { width: 5, depth: 4 },
+  window_frame: { width: 10, depth: 5 },
+  expansion_joint: { width: 20, depth: 12 },
+  concrete_slab: { width: 15, depth: 10 },
+  metal_cladding: { width: 12, depth: 6 },
+  roof_flashing: { width: 6, depth: 4 },
+  floor_joint: { width: 8, depth: 8 },
+  pipe_penetration: { width: 10, depth: 6 },
+  roofing: { width: 8, depth: 5 },
+  wall_tile: { width: 4, depth: 4 },
+  shower_base: { width: 5, depth: 4 },
+  rain_gutter: { width: 8, depth: 6 },
+  plumbing_connection: { width: 5, depth: 5 },
+  general_gap: { width: 5, depth: 5 },
+};

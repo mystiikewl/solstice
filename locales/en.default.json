@@ -405,6 +405,11 @@
         "roof_flashing": "Roof flashing",
         "floor_joint": "Floor joint",
         "pipe_penetration": "Pipe penetration",
+        "roofing": "Roof sealing",
+        "wall_tile": "Wall tiling",
+        "shower_base": "Shower tray sealing",
+        "rain_gutter": "Rain gutter joint",
+        "plumbing_connection": "Plumbing connection",
         "general_gap": "General gap filling"
       },
       "preset_descriptions": {
@@ -417,6 +422,11 @@
         "roof_flashing": "Roof flashing detail — fine weatherproofing bead.",
         "floor_joint": "Floor joint filling — square profile for traffic areas.",
         "pipe_penetration": "Pipe penetration sealing — around services through walls.",
+        "roofing": "General roof sealing — ridge tiles, membrane overlaps, and penetrations.",
+        "wall_tile": "Wall tile joint sealing — waterproof seal behind splashbacks and wet areas.",
+        "shower_base": "Shower tray perimeter sealing — waterproof joint between tray and wall.",
+        "rain_gutter": "Rain gutter section joint — seal against water leakage at connections.",
+        "plumbing_connection": "Plumbing pipe penetration — annular gap around pipes through walls and floors.",
         "general_gap": "General gap filling — small gaps and cracks."
       }
     }

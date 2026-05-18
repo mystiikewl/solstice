@@ -50,7 +50,7 @@
             "custom_width_mobile": 100,
             "height": "fit",
             "details_position": "flex-start",
-            "gap": 28,
+            "gap": 20,
             "sticky_details_desktop": true,
             "inherit_color_scheme": true,
             "color_scheme": "scheme-1",
@@ -67,7 +67,7 @@
             "padding-inline-end": 0
           },
           "blocks": {
-            "group_icgrde": {
+            "group_header": {
               "type": "group",
               "name": "Header",
               "settings": {
@@ -80,7 +80,7 @@
                 "align_baseline": false,
                 "horizontal_alignment_flex_direction_column": "flex-start",
                 "vertical_alignment_flex_direction_column": "center",
-                "gap": 12,
+                "gap": 8,
                 "width": "fill",
                 "custom_width": 100,
                 "width_mobile": "fill",
@@ -107,7 +107,43 @@
                 "padding-inline-end": 0
               },
               "blocks": {
-                "text_xpVMaM": {
+                "text_vendor": {
+                  "type": "text",
+                  "name": "Vendor",
+                  "settings": {
+                    "text": "<p>{{ closest.product.vendor }}</p>",
+                    "width": "fit-content",
+                    "max_width": "normal",
+                    "alignment": "left",
+                    "type_preset": "h6",
+                    "font": "var(--font-body--family)",
+                    "font_size": "0.75rem",
+                    "line_height": "normal",
+                    "letter_spacing": "normal",
+                    "case": "uppercase",
+                    "wrap": "pretty",
+                    "color": "var(--color-foreground)",
+                    "background": false,
+                    "background_color": "#00000026",
+                    "corner_radius": 0,
+                    "padding-block-start": 0,
+                    "padding-block-end": 0,
+                    "padding-inline-start": 0,
+                    "padding-inline-end": 0
+                  },
+                  "blocks": {}
+                },
+                "vendor_badge": {
+                  "type": "solstice-vendor-badge",
+                  "name": "Vendor badge",
+                  "settings": {
+                    "show_logo": false,
+                    "logo_image": null,
+                    "vendor_url": ""
+                  },
+                  "blocks": {}
+                },
+            "text_title": {
                   "type": "text",
                   "name": "t:names.title",
                   "settings": {
@@ -116,7 +152,7 @@
                     "max_width": "normal",
                     "alignment": "left",
                     "type_preset": "h3",
-                    "font": "var(--font-body--family)",
+                    "font": "var(--font-heading--family)",
                     "font_size": "1rem",
                     "line_height": "normal",
                     "letter_spacing": "normal",
@@ -133,22 +169,41 @@
                   },
                   "blocks": {}
                 },
-                "price_tVjtKg": {
+                "sku_block": {
+                  "type": "sku",
+                  "settings": {
+                    "type_preset": "custom",
+                    "width": "100%",
+                    "alignment": "left",
+                    "font": "var(--font-body--family)",
+                    "font_size": "0.75rem",
+                    "line_height": "normal",
+                    "letter_spacing": "normal",
+                    "case": "none",
+                    "color": "var(--color-foreground)",
+                    "padding-block-start": 0,
+                    "padding-block-end": 0,
+                    "padding-inline-start": 0,
+                    "padding-inline-end": 0
+                  },
+                  "blocks": {}
+                },
+                "price_block": {
                   "type": "price",
                   "settings": {
                     "show_sale_price_first": true,
                     "show_installments": false,
                     "show_tax_info": false,
-                    "type_preset": "paragraph",
+                    "type_preset": "h4",
                     "width": "100%",
                     "alignment": "left",
-                    "font": "var(--font-body--family)",
+                    "font": "var(--font-heading--family)",
                     "font_size": "1rem",
                     "line_height": "normal",
                     "letter_spacing": "normal",
                     "case": "none",
                     "color": "var(--color-foreground)",
-                    "padding-block-start": 4,
+                    "padding-block-start": 8,
                     "padding-block-end": 0,
                     "padding-inline-start": 0,
                     "padding-inline-end": 0
@@ -157,27 +212,53 @@
                 }
               },
               "block_order": [
-                "text_xpVMaM",
-                "price_tVjtKg"
+                "vendor_badge",
+                "text_title",
+                "sku_block",
+                "price_block"
               ]
             },
-            "divider_VJhene": {
+            "group_trust": {
+              "type": "solstice-trust-badges",
+              "name": "Trust badges",
+              "settings": {
+                "years_text": "30+",
+                "years_label": "years in the trade",
+                "locations_text": "4",
+                "locations_label": "store locations",
+                "owned_text": "Australian owned & operated",
+                "call_text": "Call us",
+                "phone_number": "(07) 3356 0000"
+              },
+              "blocks": {}
+            },
+            "divider_1": {
               "type": "_divider",
               "name": "t:names.divider",
               "settings": {
                 "thickness": 1,
                 "corner_radius": "square",
                 "width_percent": 100,
-                "padding-block-start": 0,
-                "padding-block-end": 0
+                "padding-block-start": 4,
+                "padding-block-end": 4
               },
               "blocks": {}
             },
-            "variant_picker_R3rGDr": {
+            "buy_mode_toggle": {
+              "type": "solstice-buy-mode-toggle",
+              "name": "Buy mode",
+              "settings": {
+                "single_keywords": "single,each,unit",
+                "box_keywords": "box,bulk,carton,pack",
+                "show_unit_savings": true
+              },
+              "blocks": {}
+            },
+            "variant_picker": {
               "type": "variant-picker",
               "settings": {
                 "variant_style": "buttons",
-                "show_swatches": false,
+                "show_swatches": true,
                 "alignment": "left",
                 "padding-block-start": 0,
                 "padding-block-end": 0,
@@ -186,13 +267,34 @@
               },
               "blocks": {}
             },
-            "buy_buttons_eYQEYi": {
+            "inventory": {
+              "type": "product-inventory",
+              "settings": {
+                "inventory_threshold": 10,
+                "show_inventory_quantity": true,
+                "type_preset": "custom",
+                "width": "100%",
+                "alignment": "left",
+                "font": "var(--font-body--family)",
+                "font_size": "0.75rem",
+                "line_height": "normal",
+                "letter_spacing": "normal",
+                "case": "none",
+                "color": "var(--color-foreground)",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "buy_buttons": {
               "type": "buy-buttons",
               "settings": {
                 "stacking": true,
                 "show_pickup_availability": false,
                 "gift_card_form": true,
-                "padding-block-start": 0,
+                "padding-block-start": 8,
                 "padding-block-end": 0,
                 "padding-inline-start": 0,
                 "padding-inline-end": 0
@@ -221,16 +323,110 @@
               },
               "block_order": []
             },
-            "text_aEtTtq": {
+            "group_shipping": {
+              "type": "group",
+              "name": "Shipping + payment",
+              "settings": {
+                "link": "",
+                "open_in_new_tab": false,
+                "content_direction": "row",
+                "vertical_on_mobile": true,
+                "horizontal_alignment": "flex-start",
+                "vertical_alignment": "center",
+                "align_baseline": true,
+                "horizontal_alignment_flex_direction_column": "flex-start",
+                "vertical_alignment_flex_direction_column": "center",
+                "gap": 16,
+                "width": "fill",
+                "custom_width": 100,
+                "width_mobile": "fill",
+                "custom_width_mobile": 100,
+                "height": "fit",
+                "custom_height": 100,
+                "inherit_color_scheme": true,
+                "color_scheme": "",
+                "background_media": "none",
+                "video_position": "cover",
+                "background_image_position": "cover",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 0,
+                "placeholder": "",
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "padding-block-start": 8,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {
+                "text_shipping": {
+                  "type": "text",
+                  "name": "Shipping info",
+                  "settings": {
+                    "text": "<p>Flat rate $17.95 metro · Free pickup from 4 stores</p>",
+                    "width": "fit-content",
+                    "max_width": "normal",
+                    "alignment": "left",
+                    "type_preset": "custom",
+                    "font": "var(--font-body--family)",
+                    "font_size": "0.75rem",
+                    "line_height": "normal",
+                    "letter_spacing": "normal",
+                    "case": "none",
+                    "wrap": "pretty",
+                    "color": "var(--color-foreground)",
+                    "background": false,
+                    "background_color": "#00000026",
+                    "corner_radius": 0,
+                    "padding-block-start": 0,
+                    "padding-block-end": 0,
+                    "padding-inline-start": 0,
+                    "padding-inline-end": 0
+                  },
+                  "blocks": {}
+                },
+                "payment_icons": {
+                  "type": "payment-icons",
+                  "settings": {
+                    "padding-block-start": 0,
+                    "padding-block-end": 0,
+                    "padding-inline-start": 0,
+                    "padding-inline-end": 0
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": [
+                "text_shipping",
+                "payment_icons"
+              ]
+            },
+            "divider_2": {
+              "type": "_divider",
+              "name": "t:names.divider",
+              "settings": {
+                "thickness": 1,
+                "corner_radius": "square",
+                "width_percent": 100,
+                "padding-block-start": 8,
+                "padding-block-end": 8
+              },
+              "blocks": {}
+            },
+            "text_description": {
               "type": "text",
               "name": "Product description",
               "settings": {
-                "text": "{{ closest.product.description }}",
+                    "text": "<p>{{ closest.product.description }}</p>",
                 "width": "100%",
                 "max_width": "normal",
                 "alignment": "left",
                 "type_preset": "rte",
-                "font": "var(--font-primary--family)",
+                "font": "var(--font-body--family)",
                 "font_size": "",
                 "line_height": "normal",
                 "letter_spacing": "normal",
@@ -246,14 +442,235 @@
                 "padding-inline-end": 0
               },
               "blocks": {}
+            },
+            "accordion_specs": {
+              "type": "accordion",
+              "name": "Technical details",
+              "settings": {
+                "icon": "caret",
+                "type_preset": "h6",
+                "dividers": true,
+                "inherit_color_scheme": true,
+                "color_scheme": "scheme-1",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 0,
+                "padding-block-start": 8,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {
+                "accordion_spec_row": {
+                  "type": "_accordion-row",
+                  "settings": {
+                    "heading": "Specifications",
+                    "open_by_default": true,
+                    "icon": "none"
+                  },
+                  "blocks": {
+                    "spec_text": {
+                      "type": "text",
+                      "settings": {
+                        "text": "<p>Key specifications and technical data for this product. Edit this content in the theme editor or use product metafields.</p>",
+                        "width": "100%",
+                        "max_width": "normal",
+                        "alignment": "left",
+                        "type_preset": "rte",
+                        "font": "var(--font-body--family)",
+                        "font_size": "",
+                        "line_height": "normal",
+                        "letter_spacing": "normal",
+                        "case": "none",
+                        "wrap": "pretty",
+                        "color": "",
+                        "background": false,
+                        "background_color": "#00000026",
+                        "corner_radius": 0,
+                        "padding-block-start": 0,
+                        "padding-block-end": 0,
+                        "padding-inline-start": 0,
+                        "padding-inline-end": 0
+                      },
+                      "blocks": {}
+                    }
+                  },
+                  "block_order": [
+                    "spec_text"
+                  ]
+                },
+                "accordion_app_row": {
+                  "type": "_accordion-row",
+                  "settings": {
+                    "heading": "Application guide",
+                    "open_by_default": false,
+                    "icon": "none"
+                  },
+                  "blocks": {
+                    "app_text": {
+                      "type": "text",
+                      "settings": {
+                        "text": "<p>How to use this product — application instructions, surface preparation, and best practices. Edit in theme editor or use product metafields.</p>",
+                        "width": "100%",
+                        "max_width": "normal",
+                        "alignment": "left",
+                        "type_preset": "rte",
+                        "font": "var(--font-body--family)",
+                        "font_size": "",
+                        "line_height": "normal",
+                        "letter_spacing": "normal",
+                        "case": "none",
+                        "wrap": "pretty",
+                        "color": "",
+                        "background": false,
+                        "background_color": "#00000026",
+                        "corner_radius": 0,
+                        "padding-block-start": 0,
+                        "padding-block-end": 0,
+                        "padding-inline-start": 0,
+                        "padding-inline-end": 0
+                      },
+                      "blocks": {}
+                    }
+                  },
+                  "block_order": [
+                    "app_text"
+                  ]
+                },
+                "accordion_tds_row": {
+                  "type": "_accordion-row",
+                  "settings": {
+                    "heading": "Technical data sheets",
+                    "open_by_default": false,
+                    "icon": "none"
+                  },
+                  "blocks": {
+                    "tds_text": {
+                      "type": "text",
+                      "settings": {
+                        "text": "<p>Download TDS and SDS documents. Add links to product metafields or edit this text block.</p>",
+                        "width": "100%",
+                        "max_width": "normal",
+                        "alignment": "left",
+                        "type_preset": "rte",
+                        "font": "var(--font-body--family)",
+                        "font_size": "",
+                        "line_height": "normal",
+                        "letter_spacing": "normal",
+                        "case": "none",
+                        "wrap": "pretty",
+                        "color": "",
+                        "background": false,
+                        "background_color": "#00000026",
+                        "corner_radius": 0,
+                        "padding-block-start": 0,
+                        "padding-block-end": 0,
+                        "padding-inline-start": 0,
+                        "padding-inline-end": 0
+                      },
+                      "blocks": {}
+                    }
+                  },
+                  "block_order": [
+                    "tds_text"
+                  ]
+                },
+                "accordion_limits_row": {
+                  "type": "_accordion-row",
+                  "settings": {
+                    "heading": "Limitations",
+                    "open_by_default": false,
+                    "icon": "none"
+                  },
+                  "blocks": {
+                    "limits_text": {
+                      "type": "text",
+                      "settings": {
+                        "text": "<p>When not to use this product. Edit in theme editor or use product metafields.</p>",
+                        "width": "100%",
+                        "max_width": "normal",
+                        "alignment": "left",
+                        "type_preset": "rte",
+                        "font": "var(--font-body--family)",
+                        "font_size": "",
+                        "line_height": "normal",
+                        "letter_spacing": "normal",
+                        "case": "none",
+                        "wrap": "pretty",
+                        "color": "",
+                        "background": false,
+                        "background_color": "#00000026",
+                        "corner_radius": 0,
+                        "padding-block-start": 0,
+                        "padding-block-end": 0,
+                        "padding-inline-start": 0,
+                        "padding-inline-end": 0
+                      },
+                      "blocks": {}
+                    }
+                  },
+                  "block_order": [
+                    "limits_text"
+                  ]
+                }
+              },
+              "block_order": [
+                "accordion_spec_row",
+                "accordion_app_row",
+                "accordion_tds_row",
+                "accordion_limits_row"
+              ]
+            },
+            "sealant_calculator": {
+              "type": "solstice-sealant-calculator",
+              "name": "Coverage calculator",
+              "settings": {
+                "heading": "How much do you need?",
+                "calculator_tags": "sealant-calculator",
+                "force_show": false,
+                "default_volume_ml": 310
+              },
+              "blocks": {}
+            },
+            "quote_form": {
+              "type": "solstice-quote-form",
+              "name": "Trade quote",
+              "settings": {
+                "heading": "Need a custom trade quote?",
+                "subtitle": "Tell us what you need and we'll get back to you within 24 hours.",
+                "button_label": "Get a quote",
+                "success_message": "Thanks! We'll be in touch within 24 hours."
+              },
+              "blocks": {}
+            },
+            "tds_zone": {
+              "type": "solstice-tds-zone",
+              "name": "Technical docs",
+              "settings": {
+                "heading": "Technical documents",
+                "use_metafields": true,
+                "tds_url": "",
+                "sds_url": ""
+              },
+              "blocks": {}
             }
           },
           "block_order": [
-            "group_icgrde",
-            "divider_VJhene",
-            "variant_picker_R3rGDr",
-            "buy_buttons_eYQEYi",
-            "text_aEtTtq"
+            "group_header",
+            "group_trust",
+            "divider_1",
+            "buy_mode_toggle",
+            "variant_picker",
+            "inventory",
+            "buy_buttons",
+            "group_shipping",
+            "divider_2",
+            "text_description",
+            "accordion_specs",
+            "sealant_calculator",
+            "quote_form",
+            "tds_zone"
           ]
         }
       },
@@ -263,24 +680,25 @@
         "equal_columns": false,
         "limit_details_width": false,
         "gap": 48,
+        "enable_sticky_add_to_cart": true,
         "color_scheme": "",
         "padding-block-start": 0,
         "padding-block-end": 0
       }
     },
-    "product_recommendations_qggXJq": {
+    "product_recommendations": {
       "type": "product-recommendations",
       "blocks": {
-        "text_cbcgyb": {
+        "text_cross_sell_header": {
           "type": "text",
-          "name": "t:names.header",
+          "name": "Cross-sell heading",
           "settings": {
-            "text": "<h3>You may also like </h3>",
+            "text": "<h3>You'll also need for this job</h3>",
             "width": "fit-content",
             "max_width": "normal",
             "alignment": "left",
             "type_preset": "h4",
-            "font": "var(--font-primary--family)",
+            "font": "var(--font-heading--family)",
             "font_size": "",
             "line_height": "normal",
             "letter_spacing": "normal",
@@ -315,7 +733,7 @@
             "padding-inline-end": 0
           },
           "blocks": {
-            "product_card_gallery_DNizbJ": {
+            "product_card_gallery": {
               "type": "_product-card-gallery",
               "name": "t:names.product_card_media",
               "settings": {
@@ -331,7 +749,7 @@
               },
               "blocks": {}
             },
-            "product_title_M7MJkb": {
+            "product_title": {
               "type": "product-title",
               "name": "t:names.product_title",
               "settings": {
@@ -356,7 +774,7 @@
               },
               "blocks": {}
             },
-            "price_gLWgA6": {
+            "price_card": {
               "type": "price",
               "settings": {
                 "show_sale_price_first": true,
@@ -380,21 +798,21 @@
             }
           },
           "block_order": [
-            "product_card_gallery_DNizbJ",
-            "product_title_M7MJkb",
-            "price_gLWgA6"
+            "product_card_gallery",
+            "product_title",
+            "price_card"
           ]
         }
       },
       "block_order": [
-        "text_cbcgyb"
+        "text_cross_sell_header"
       ],
-      "name": "t:names.product_recommendations",
+      "name": "Cross-sell",
       "settings": {
         "product": "{{ closest.product }}",
         "recommendation_type": "related",
         "layout_type": "grid",
-        "carousel_on_mobile": false,
+        "carousel_on_mobile": true,
         "max_products": 4,
         "columns": 4,
         "mobile_columns": "2",
@@ -412,6 +830,6 @@
   },
   "order": [
     "main",
-    "product_recommendations_qggXJq"
+    "product_recommendations"
   ]
 }

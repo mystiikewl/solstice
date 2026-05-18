@@ -4,6 +4,9 @@ import { Component } from '@theme/component';
  * @extends {Component<{}>}
  */
 class QuoteForm extends Component {
+  #nextBound = null;
+  #backBound = null;
+
   connectedCallback() {
     super.connectedCallback();
 
@@ -13,21 +16,23 @@ class QuoteForm extends Component {
     this.#step2 = this.querySelector('[data-step="2"]');
 
     if (this.#nextButton) {
-      this.#nextButton.addEventListener('click', this.#goToStep2.bind(this));
+      this.#nextBound = this.#goToStep2.bind(this);
+      this.#nextButton.addEventListener('click', this.#nextBound);
     }
 
     if (this.#backButton) {
-      this.#backButton.addEventListener('click', this.#goToStep1.bind(this));
+      this.#backBound = this.#goToStep1.bind(this);
+      this.#backButton.addEventListener('click', this.#backBound);
     }
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
-    if (this.#nextButton) {
-      this.#nextButton.removeEventListener('click', this.#goToStep2);
+    if (this.#nextButton && this.#nextBound) {
+      this.#nextButton.removeEventListener('click', this.#nextBound);
     }
-    if (this.#backButton) {
-      this.#backButton.removeEventListener('click', this.#goToStep1);
+    if (this.#backButton && this.#backBound) {
+      this.#backButton.removeEventListener('click', this.#backBound);
     }
   }
 

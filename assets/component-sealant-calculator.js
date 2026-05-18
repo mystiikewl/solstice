@@ -9,6 +9,7 @@ class SealantCalculator extends Component {
   #product = null;
   #modalClickHandler = null;
   #modalCancelHandler = null;
+  #atcTimerId = null;
 
   static calculate(lengthM, widthMm, depthMm, unitSizeMl, includeWastage) {
     let volumeMl = lengthM * 1000 * widthMm * depthMm * 0.001;
@@ -38,6 +39,10 @@ class SealantCalculator extends Component {
     for (const radio of this.refs.unitSize ?? []) {
       radio.removeEventListener('change', this.#handleRadioChangeBound);
     }
+    if (this.#atcTimerId) {
+      clearTimeout(this.#atcTimerId);
+      this.#atcTimerId = null;
+    }
   }
 
   #setupListeners() {
@@ -45,7 +50,7 @@ class SealantCalculator extends Component {
 
     this.#handlePresetChangeBound = (e) => this.handlePresetChange(e);
     this.#handlePreviewBound = () => this.handlePreview();
-    this.#handleRadioChangeBound = () => this.#handleRadioChange();
+    this.#handleRadioChangeBound = (e) => this.#handleRadioChange(e);
 
     presetSelect?.addEventListener('change', this.#handlePresetChangeBound);
     customUnitSize?.addEventListener('input', this.#handlePreviewBound);
@@ -66,7 +71,8 @@ class SealantCalculator extends Component {
     modal?.addEventListener('cancel', this.#modalCancelHandler);
   }
 
-  #handleRadioChange() {
+  #handleRadioChangeBound = null;
+  #handleRadioChange(event) {
     const radio = event.currentTarget;
     const isCustom = radio.value === 'custom' && radio.checked;
     if (this.refs.customUnitSize) {
@@ -171,7 +177,8 @@ class SealantCalculator extends Component {
       feedback.removeAttribute('hidden');
       document.dispatchEvent(new Event(ThemeEvents.cartUpdate, { bubbles: true }));
 
-      setTimeout(() => {
+      this.#atcTimerId = setTimeout(() => {
+        if (!this.isConnected) return;
         feedback.setAttribute('hidden', '');
         this.handleCloseModal();
       }, 1500);

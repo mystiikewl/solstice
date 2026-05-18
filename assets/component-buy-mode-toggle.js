@@ -26,6 +26,11 @@ class BuyModeToggle extends Component {
       option.addEventListener('click', handler);
     });
 
+    this.#boundVariantChangeHandler = () => {
+      this.#syncWithPicker();
+      this.#updateSavingsDisplay();
+    };
+
     this.#listenForVariantChanges();
     this.#calculateSavings();
   }
@@ -36,7 +41,7 @@ class BuyModeToggle extends Component {
       const handler = this.#boundHandlers?.get(option);
       if (handler) option.removeEventListener('click', handler);
     });
-    this.#observer?.disconnect();
+    this.#variantPicker?.removeEventListener('change', this.#boundVariantChangeHandler);
   }
 
   /**
@@ -86,15 +91,9 @@ class BuyModeToggle extends Component {
   #listenForVariantChanges() {
     if (!this.#variantPicker) return;
 
-    this.#observer = new MutationObserver(() => {
+    this.#variantPicker.addEventListener('change', () => {
       this.#syncWithPicker();
       this.#updateSavingsDisplay();
-    });
-
-    observer.observe(this.#variantPicker, {
-      subtree: true,
-      attributes: true,
-      attributeFilter: ['checked'],
     });
 
     this.#syncWithPicker();
@@ -186,8 +185,8 @@ class BuyModeToggle extends Component {
   #savingsPercent = 0;
   /** @type {Map<HTMLElement, Function>} */
   #boundHandlers = null;
-  /** @type {MutationObserver | null} */
-  #observer = null;
+  /** @type {Function | null} */
+  #boundVariantChangeHandler = null;
 }
 
 customElements.define('solstice-buy-mode-toggle', BuyModeToggle);
